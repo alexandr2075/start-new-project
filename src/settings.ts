@@ -4,7 +4,7 @@ config() // добавление переменных из файла .env в pr
 
 export const SETTINGS = {
     // все хардкодные значения должны быть здесь, для удобства их изменения
-    PORT: process.env.PORT || 5000,
+    PORT: process.env.PORT || 3000,
     PATH: {
         VIDEOS: '/videos',
     },
