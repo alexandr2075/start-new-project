@@ -10,7 +10,7 @@ export type dbVideo = {
     minAgeRestriction: number | null | undefined
     createdAt: string
     publicationDate: string | undefined
-    availableResolutions: Resolution | undefined
+    availableResolutions: Resolution[] | undefined
 }
 
 export let db: dbVideo[] = []

@@ -19,14 +19,16 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
 
     checkTitleAuthor(title, author, res) //check title and author
 
-    let cameResolution;
+    let cameResolution: Resolution[] = []
     if (availableResolutions) {
-        const isExists = Resolution.hasOwnProperty(availableResolutions)
-        if (isExists) {
-
-            cameResolution = availableResolutions
+        for (let i = 0; i < availableResolutions.length; i++) {
+            if (!Resolution.hasOwnProperty(availableResolutions[i])) {
+                res.status(400).json({errorsMessages: [{message: 'Invalid', field: "availableResolutions"}]})
+            }
         }
+        cameResolution = availableResolutions
     }
+
 
     const newVideo: dbVideo = {
         id: db.length + 1,
@@ -35,7 +37,7 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
         canBeDownloaded: canBeDownloaded || false || undefined, // default to false if not provided
         minAgeRestriction: minAgeRestriction || null, // null if undefined
         createdAt: new Date().toISOString(),
-        publicationDate: new Date().toISOString(),
+        publicationDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
         availableResolutions: cameResolution
     };
 
@@ -65,13 +67,14 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
 
     checkTitleAuthor(title, author, res) //check title and author
 
-    let cameResolution;
+    let cameResolution: Resolution[] = []
     if (availableResolutions) {
-        const isExists = Resolution.hasOwnProperty(availableResolutions)
-        if (isExists) {
-
-            cameResolution = availableResolutions
+        for (let i = 0; i < availableResolutions.length; i++) {
+            if (!Resolution.hasOwnProperty(availableResolutions[i])) {
+                res.status(400).json({errorsMessages: [{message: 'Invalid', field: "availableResolutions"}]})
+            }
         }
+        cameResolution = availableResolutions
     }
 
     const findedVideo = db.find(v => v.id === +req.params.id)
