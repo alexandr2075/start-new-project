@@ -53,8 +53,8 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
         author,
         canBeDownloaded: canBeDownloaded || false || undefined, // default to false if not provided
         minAgeRestriction: minAgeRestriction || null, // null if undefined
-        createdAt: new Date().toISOString(),
-        publicationDate: new Date().toISOString(),
+        createdAt: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
+        publicationDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
         availableResolutions: cameResolution
     };
 
