@@ -29,7 +29,7 @@ blogsRouter.post("/", authMiddleware, ...blogValidator,
         sendAccumulatedErrorsMiddleware(req, res)
 
         const createdBlog = blogsRepository.createBlog(req.body)
-        res.status(200).json(createdBlog)
+        res.res.status(200).json(createdBlog)
     })
 
 blogsRouter.put("/:id", authMiddleware, ...blogValidator, (req: any, res: any) => {

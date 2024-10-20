@@ -28,7 +28,7 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
 
 
     const newVideo: dbVideo = {
-        id: db.length + 1,
+        id: Date.now(),
         title,
         author,
         canBeDownloaded: canBeDownloaded || false || undefined, // default to false if not provided
