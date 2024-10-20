@@ -15,9 +15,16 @@ hometaskRouter.get('/videos', (req: any, res: any) => {
 
 // Add a new video
 hometaskRouter.post('/videos', (req: any, res: any) => {
-    const {title, author, canBeDownloaded, minAgeRestriction, availableResolutions}: Partial<dbVideo> = req.body;
+    const {
+        title,
+        author,
+        canBeDownloaded,
+        minAgeRestriction,
+        publicationDate,
+        availableResolutions
+    }: Partial<dbVideo> = req.body;
 
-    checkReqBody(title, author, canBeDownloaded, minAgeRestriction, availableResolutions, res) //check body
+    checkReqBody(title, author, canBeDownloaded, minAgeRestriction, availableResolutions, publicationDate, res) //check body
 
 
     const newVideo: dbVideo = {
@@ -25,7 +32,7 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
         title,
         author,
         canBeDownloaded: canBeDownloaded || false || undefined, // default to false if not provided
-        minAgeRestriction: minAgeRestriction || null, // null if undefined
+        minAgeRestriction: minAgeRestriction, // null if undefined
         createdAt: new Date().toISOString(),
         publicationDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
         availableResolutions
@@ -55,14 +62,14 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
         availableResolutions
     }: Partial<dbVideo> = req.body;
 
-    checkReqBody(title, author, canBeDownloaded, minAgeRestriction, availableResolutions, res) //check body
+    checkReqBody(title, author, canBeDownloaded, minAgeRestriction, availableResolutions, publicationDate, res) //check body
 
     const findedVideo = db.find(v => v.id === +req.params.id)
     if (findedVideo) {
         findedVideo.title = title
         findedVideo.author = author
         findedVideo.canBeDownloaded = canBeDownloaded || false || undefined // default to false if not provided
-        findedVideo.minAgeRestriction = minAgeRestriction || null // null if undefined
+        findedVideo.minAgeRestriction = minAgeRestriction
         findedVideo.createdAt = new Date().toISOString()
         findedVideo.publicationDate = publicationDate
         findedVideo.availableResolutions = availableResolutions
