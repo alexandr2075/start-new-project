@@ -1,4 +1,6 @@
-export const checkTitleAuthor = (title: string | undefined, author: string | undefined, res: any) => {
+import {Resolution} from "../../db/dbVideo";
+
+export const checkReqBody = (title: string | undefined, author: string | undefined, canBeDownloaded: boolean | undefined, minAgeRestriction: number | null | undefined, availableResolutions: Resolution[] | undefined, res: any) => {
     const errorsMessages = []
 
     if (!title || title.length > 40) {
@@ -13,6 +15,29 @@ export const checkTitleAuthor = (title: string | undefined, author: string | und
             "field": "author"
         })
     }
+    if (typeof canBeDownloaded !== "boolean") {
+        errorsMessages.push({
+            "message": "canBeDownloaded should be type boolean",
+            "field": "canBeDownloaded"
+        })
+    }
+    if (typeof minAgeRestriction !== "number" || minAgeRestriction > 18 || minAgeRestriction < 1) {
+        errorsMessages.push({
+            "message": "minAgeRestriction should be more 0 then 18",
+            "field": "minAgeRestriction"
+        })
+    }
+    if (availableResolutions) {
+        for (let i = 0; i < availableResolutions.length; i++) {
+            if (!Resolution.hasOwnProperty(availableResolutions[i])) {
+                errorsMessages.push({
+                    "message": "availableResolutions should be for enum Resolution",
+                    "field": "availableResolutions"
+                })
+            }
+        }
+    }
+
     if (errorsMessages.length !== 0) {
         res.status(400).send({errorsMessages: errorsMessages})
     }

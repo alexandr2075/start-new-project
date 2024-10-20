@@ -1,6 +1,6 @@
 import {Router} from "express";
-import {dbVideo, db, Resolution} from "../../db/dbVideo";
-import {checkTitleAuthor} from "./other";
+import {dbVideo, db} from "../../db/dbVideo";
+import {checkReqBody} from "./other";
 
 
 export const hometaskRouter = Router();
@@ -17,17 +17,7 @@ hometaskRouter.get('/videos', (req: any, res: any) => {
 hometaskRouter.post('/videos', (req: any, res: any) => {
     const {title, author, canBeDownloaded, minAgeRestriction, availableResolutions}: Partial<dbVideo> = req.body;
 
-    checkTitleAuthor(title, author, res) //check title and author
-
-    let cameResolution: Resolution[] = []
-    if (availableResolutions) {
-        for (let i = 0; i < availableResolutions.length; i++) {
-            if (!Resolution.hasOwnProperty(availableResolutions[i])) {
-                res.status(400).json({errorsMessages: [{message: 'Invalid', field: "availableResolutions"}]})
-            }
-        }
-        cameResolution = availableResolutions
-    }
+    checkReqBody(title, author, canBeDownloaded, minAgeRestriction, availableResolutions, res) //check body
 
 
     const newVideo: dbVideo = {
@@ -38,7 +28,7 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
         minAgeRestriction: minAgeRestriction || null, // null if undefined
         createdAt: new Date().toISOString(),
         publicationDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
-        availableResolutions: cameResolution
+        availableResolutions
     };
 
     db.push(newVideo);
@@ -65,28 +55,17 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
         availableResolutions
     }: Partial<dbVideo> = req.body;
 
-    checkTitleAuthor(title, author, res) //check title and author
-
-
-    let cameResolution: Resolution[] = []
-    if (availableResolutions) {
-        for (let i = 0; i < availableResolutions.length; i++) {
-            if (!Resolution.hasOwnProperty(availableResolutions[i])) {
-                res.status(400).json({errorsMessages: [{message: 'Invalid', field: "availableResolutions"}]})
-            }
-        }
-        cameResolution = availableResolutions
-    }
+    checkReqBody(title, author, canBeDownloaded, minAgeRestriction, availableResolutions, res) //check body
 
     const findedVideo = db.find(v => v.id === +req.params.id)
-    if (findedVideo && typeof canBeDownloaded === "boolean") {
+    if (findedVideo) {
         findedVideo.title = title
         findedVideo.author = author
         findedVideo.canBeDownloaded = canBeDownloaded || false || undefined // default to false if not provided
         findedVideo.minAgeRestriction = minAgeRestriction || null // null if undefined
         findedVideo.createdAt = new Date().toISOString()
         findedVideo.publicationDate = publicationDate
-        findedVideo.availableResolutions = cameResolution
+        findedVideo.availableResolutions = availableResolutions
         res.sendStatus(204)
     } else {
         return res.sendStatus(404)
