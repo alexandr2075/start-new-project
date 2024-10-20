@@ -53,8 +53,8 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
         author,
         canBeDownloaded: canBeDownloaded || false || undefined, // default to false if not provided
         minAgeRestriction: minAgeRestriction || null, // null if undefined
-        createdAt: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
-        publicationDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
+        createdAt: new Date().toISOString(),
+        publicationDate: new Date().toISOString(),
         availableResolutions: cameResolution
     };
 
@@ -112,7 +112,7 @@ hometaskRouter.delete('/videos/:id', (req: any, res: any) => {
     for (let i = 0; i < db.length; i++) {
         if (db[i].id === +req.params.id) {
             db.splice(i, 1);
-            res.sendStatus(200)
+            res.sendStatus(204)
         }
     }
     res.sendStatus(404)
