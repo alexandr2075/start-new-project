@@ -2,12 +2,21 @@ import {Router} from "express";
 import {dbVideo, db, Resolution} from "../../db/dbVideo";
 
 const checkTitleAuthor = (title: string | undefined, author: string | undefined, res: any) => {
-    if (!title || !author || title.length > 40 || author.length > 20) {
+    if (!title || title.length > 40) {
         return res.status(400).json({
             "errorsMessages": [
                 {
-                    "message": "title or author are required and should be strings",
-                    "field": "title or author"
+                    "message": "title are required and should be more 0 then 40",
+                    "field": "title"
+                }
+            ]
+        })
+    } else if (!author || author.length > 20) {
+        return res.status(400).json({
+            "errorsMessages": [
+                {
+                    "message": "author are required and should be more 0 then 20",
+                    "field": "author"
                 }
             ]
         })
