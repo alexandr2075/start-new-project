@@ -1,5 +1,5 @@
 import {Router} from "express";
-import {DB, db} from "../db/db"; // still assuming your db is an in-memory array
+import {dbVideo, db} from "../../db/dbVideo"; // still assuming your db is an in-memory array
 
 
 export const hometaskRouter = Router();
@@ -14,7 +14,7 @@ hometaskRouter.get('/videos', (req: any, res: any) => {
 
 // Add a new video
 hometaskRouter.post('/videos', (req: any, res: any) => {
-    const {title, author, canBeDownloaded, minAgeRestriction, availableResolutions}: Partial<DB> = req.body;
+    const {title, author, canBeDownloaded, minAgeRestriction, availableResolutions}: Partial<dbVideo> = req.body;
 
     // Validation that doesn't suck
     if (!title || !author) {
@@ -25,7 +25,7 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
         });
     }
 
-    const newVideo: DB = {
+    const newVideo: dbVideo = {
         id: db.length + 1,
         title,
         author,
