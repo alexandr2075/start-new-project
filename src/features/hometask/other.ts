@@ -14,6 +14,6 @@ export const checkTitleAuthor = (title: string | undefined, author: string | und
         })
     }
     if (errorsMessages.length !== 0) {
-        res.status(400).send(errorsMessages)
+        res.status(400).send({errorsMessages: errorsMessages})
     }
 }
