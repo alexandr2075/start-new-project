@@ -7,7 +7,7 @@ export type dbVideo = {
     title: string | undefined
     author: string | undefined
     canBeDownloaded: boolean | undefined
-    minAgeRestriction: number | undefined
+    minAgeRestriction: number | undefined | null
     createdAt: string
     publicationDate: string | undefined
     availableResolutions: Resolution[] | undefined

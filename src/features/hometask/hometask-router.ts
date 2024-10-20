@@ -19,7 +19,7 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
         title,
         author,
         canBeDownloaded,
-        minAgeRestriction,
+        minAgeRestriction = null,
         publicationDate,
         availableResolutions
     }: Partial<dbVideo> = req.body;
@@ -57,7 +57,7 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
         title,
         author,
         canBeDownloaded,
-        minAgeRestriction,
+        minAgeRestriction = null,
         publicationDate,
         availableResolutions
     }: Partial<dbVideo> = req.body;

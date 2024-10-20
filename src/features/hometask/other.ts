@@ -1,6 +1,6 @@
 import {Resolution} from "../../db/dbVideo";
 
-export const checkReqBody = (title: string | undefined, author: string | undefined, canBeDownloaded: boolean | undefined, minAgeRestriction: number | undefined, availableResolutions: Resolution[] | undefined, publicationDate: string | undefined, res: any) => {
+export const checkReqBody = (title: string | undefined, author: string | undefined, canBeDownloaded: boolean | undefined, minAgeRestriction: number | undefined | null, availableResolutions: Resolution[] | undefined, publicationDate: string | undefined, res: any) => {
     const errorsMessages = []
 
     if (!title || title.length > 40) {
@@ -27,7 +27,10 @@ export const checkReqBody = (title: string | undefined, author: string | undefin
             "message": "minAgeRestriction should be more 0 then 18",
             "field": "minAgeRestriction"
         })
+    } else if (!minAgeRestriction) {
+        minAgeRestriction === null
     }
+
     if (publicationDate && typeof publicationDate !== "string") {
         errorsMessages.push({
             "message": "publicationDate should be string",
