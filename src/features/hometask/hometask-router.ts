@@ -67,6 +67,7 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
 
     checkTitleAuthor(title, author, res) //check title and author
 
+
     let cameResolution: Resolution[] = []
     if (availableResolutions) {
         for (let i = 0; i < availableResolutions.length; i++) {
@@ -78,7 +79,7 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
     }
 
     const findedVideo = db.find(v => v.id === +req.params.id)
-    if (findedVideo) {
+    if (findedVideo && typeof canBeDownloaded === "boolean") {
         findedVideo.title = title
         findedVideo.author = author
         findedVideo.canBeDownloaded = canBeDownloaded || false || undefined // default to false if not provided
