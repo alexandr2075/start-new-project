@@ -1,6 +1,6 @@
 import {Resolution} from "../../db/dbVideo";
 
-export const checkReqBody = (title: string | undefined, author: string | undefined, canBeDownloaded: boolean | undefined, minAgeRestriction: number | null | undefined, availableResolutions: Resolution[] | undefined, res: any) => {
+export const checkReqBody = (title: string | undefined, author: string | undefined, canBeDownloaded: boolean | undefined, minAgeRestriction: number, availableResolutions: Resolution[] | undefined, res: any) => {
     const errorsMessages = []
 
     if (!title || title.length > 40) {
@@ -15,13 +15,13 @@ export const checkReqBody = (title: string | undefined, author: string | undefin
             "field": "author"
         })
     }
-    if (typeof canBeDownloaded !== "boolean") {
+    if (canBeDownloaded && typeof canBeDownloaded !== "boolean") {
         errorsMessages.push({
             "message": "canBeDownloaded should be type boolean",
             "field": "canBeDownloaded"
         })
     }
-    if (typeof minAgeRestriction !== "number" || minAgeRestriction > 18 || minAgeRestriction < 1) {
+    if (minAgeRestriction && typeof minAgeRestriction !== "number" || minAgeRestriction > 18 || minAgeRestriction < 1) {
         errorsMessages.push({
             "message": "minAgeRestriction should be more 0 then 18",
             "field": "minAgeRestriction"
