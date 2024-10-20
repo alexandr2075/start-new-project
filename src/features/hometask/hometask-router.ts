@@ -1,27 +1,8 @@
 import {Router} from "express";
 import {dbVideo, db, Resolution} from "../../db/dbVideo";
+import {checkTitleAuthor} from "./other";
 
-const checkTitleAuthor = (title: string | undefined, author: string | undefined, res: any) => {
-    if (!title || title.length > 40) {
-        return res.status(400).json({
-            "errorsMessages": [
-                {
-                    "message": "title are required and should be more 0 then 40",
-                    "field": "title"
-                }
-            ]
-        })
-    } else if (!author || author.length > 20) {
-        return res.status(400).json({
-            "errorsMessages": [
-                {
-                    "message": "author are required and should be more 0 then 20",
-                    "field": "author"
-                }
-            ]
-        })
-    }
-}
+
 export const hometaskRouter = Router();
 
 // Fetch all videos
