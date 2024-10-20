@@ -112,9 +112,6 @@ hometaskRouter.delete('/videos/:id', (req: any, res: any) => {
 
 // Delete all videos
 hometaskRouter.delete('/testing/all-data', (req: any, res: any) => {
-    if (db.length === 0) {
-        return res.status(404).json({message: "Nothing to delete"});
-    }
     db.length = 0; // actual deletion, like a real developer
     res.sendStatus(204);
 });
