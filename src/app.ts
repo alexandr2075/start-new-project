@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
     res.status(200).json({version: '20001.0'})
 })
 
-app.use('/hometask_01/api', hometaskRouter);
+app.use('/', hometaskRouter);
 
 
 // app.use('/ht_02/api/blogs', blogsRouter);
