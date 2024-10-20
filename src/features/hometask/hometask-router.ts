@@ -24,18 +24,18 @@ hometaskRouter.post('/videos', (req: any, res: any) => {
         availableResolutions
     }: Partial<dbVideo> = req.body;
 
-    checkReqBody(title, author, canBeDownloaded, minAgeRestriction, availableResolutions, publicationDate, res) //check body
+    checkReqBody(req.body, res) //check body
 
 
     const newVideo: dbVideo = {
         id: Date.now(),
         title,
         author,
-        canBeDownloaded: canBeDownloaded || false || undefined, // default to false if not provided
-        minAgeRestriction: minAgeRestriction, // null if undefined
+        canBeDownloaded: false, // default to false if not provided
+        minAgeRestriction: null, // null if undefined
         createdAt: new Date().toISOString(),
         publicationDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
-        availableResolutions
+        availableResolutions: ["P144"]
     };
 
     db.push(newVideo);
@@ -62,7 +62,7 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
         availableResolutions
     }: Partial<dbVideo> = req.body;
 
-    checkReqBody(title, author, canBeDownloaded, minAgeRestriction, availableResolutions, publicationDate, res) //check body
+    checkReqBody(req.body, res) //check body
 
     const findedVideo = db.find(v => v.id === +req.params.id)
     if (findedVideo) {
@@ -72,7 +72,7 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
         findedVideo.minAgeRestriction = minAgeRestriction
         findedVideo.createdAt = new Date().toISOString()
         findedVideo.publicationDate = publicationDate
-        findedVideo.availableResolutions = availableResolutions
+        findedVideo.availableResolutions = availableResolutions ?? findedVideo.availableResolutions
         res.sendStatus(204)
     } else {
         return res.sendStatus(404)

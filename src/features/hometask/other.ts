@@ -1,46 +1,46 @@
-import {Resolution} from "../../db/dbVideo";
+import {dbVideo, Resolution} from "../../db/dbVideo";
 
-export const checkReqBody = (title: string | undefined, author: string | undefined, canBeDownloaded: boolean | undefined, minAgeRestriction: number | undefined | null, availableResolutions: Resolution[] | undefined, publicationDate: string | undefined, res: any) => {
+export const checkReqBody = (video: dbVideo, res: any) => {
     const errorsMessages = []
 
-    if (!title || title.length > 40) {
+    if (!video.title || video.title.length > 40) {
         errorsMessages.push({
             "message": "title are required and should be more 0 then 40",
             "field": "title"
         })
     }
-    if (!author || author.length > 20) {
+    if (!video.author || video.author.length > 20) {
         errorsMessages.push({
             "message": "author are required and should be more 0 then 40",
             "field": "author"
         })
     }
-    if (canBeDownloaded && typeof canBeDownloaded !== "boolean") {
+    if (video.canBeDownloaded && typeof video.canBeDownloaded !== "boolean") {
         errorsMessages.push({
             "message": "canBeDownloaded should be type boolean",
             "field": "canBeDownloaded"
         })
     }
 
-    if (minAgeRestriction && typeof minAgeRestriction !== "number") {
+    if (video.minAgeRestriction && typeof video.minAgeRestriction !== "number") {
         errorsMessages.push({
             "message": "minAgeRestriction should be more 0 then 18",
             "field": "minAgeRestriction"
         })
-    } else if (!minAgeRestriction) {
-        minAgeRestriction === null
+    } else if (!video.minAgeRestriction) {
+        video.minAgeRestriction === null
     }
 
-    if (publicationDate && typeof publicationDate !== "string") {
+    if (video.publicationDate && typeof video.publicationDate !== "string") {
         errorsMessages.push({
             "message": "publicationDate should be string",
             "field": "publicationDate"
         })
     }
 
-    if (availableResolutions) {
-        for (let i = 0; i < availableResolutions.length; i++) {
-            if (!Resolution.hasOwnProperty(availableResolutions[i])) {
+    if (video.availableResolutions) {
+        for (let i = 0; i < video.availableResolutions.length; i++) {
+            if (!Resolution.hasOwnProperty(video.availableResolutions[i])) {
                 errorsMessages.push({
                     "message": "availableResolutions should be for enum Resolution",
                     "field": "availableResolutions"
