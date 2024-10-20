@@ -4,12 +4,12 @@ export enum Resolution {
 
 export type dbVideo = {
     id: number
-    title: string
-    author: string
-    canBeDownloaded: boolean
+    title: string | undefined
+    author: string | undefined
+    canBeDownloaded: boolean | undefined
     minAgeRestriction: number | null | undefined
     createdAt: string
-    publicationDate: string
+    publicationDate: string | undefined
     availableResolutions: Resolution | undefined
 }
 
