@@ -57,7 +57,7 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
         title,
         author,
         canBeDownloaded,
-        minAgeRestriction = null,
+        minAgeRestriction,
         publicationDate,
         availableResolutions
     }: Partial<dbVideo> = req.body;
@@ -70,7 +70,7 @@ hometaskRouter.put('/videos/:id', (req: any, res: any) => {
         findedVideo.author = author
         findedVideo.canBeDownloaded = canBeDownloaded || false || undefined // default to false if not provided
         findedVideo.minAgeRestriction = minAgeRestriction
-        findedVideo.createdAt = new Date().toISOString()
+        findedVideo.createdAt
         findedVideo.publicationDate = publicationDate
         findedVideo.availableResolutions = availableResolutions ?? findedVideo.availableResolutions
         res.sendStatus(204)

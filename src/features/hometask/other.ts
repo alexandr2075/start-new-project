@@ -22,13 +22,11 @@ export const checkReqBody = (video: dbVideo, res: any) => {
         })
     }
 
-    if (video.minAgeRestriction && typeof video.minAgeRestriction !== "number") {
+    if (video.minAgeRestriction && video.minAgeRestriction > 18) {
         errorsMessages.push({
             "message": "minAgeRestriction should be more 0 then 18",
             "field": "minAgeRestriction"
         })
-    } else if (!video.minAgeRestriction) {
-        video.minAgeRestriction === null
     }
 
     if (video.publicationDate && typeof video.publicationDate !== "string") {
