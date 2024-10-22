@@ -15,7 +15,7 @@ postsRouter.get("/", async (req, res) => {
 postsRouter.get("/:id", (req: any, res: any) => {
     const findedPost = postsRepository.getPostById(req.params.id)
     if (findedPost) {
-        res.send(200)
+        res.status(200).send(findedPost)
     } else {
         res.send(404)
     }
@@ -29,7 +29,7 @@ postsRouter.post("/", authMiddleware, ...postValidator,
         sendAccumulatedErrorsMiddleware(req, res)
 
         const createdPost = postsRepository.createPost(req.body)
-        res.status(201).json(createdPost)
+        res.status(201).send(createdPost)
     })
 
 postsRouter.put("/:id", authMiddleware, ...postValidator, (req: any, res: any) => {

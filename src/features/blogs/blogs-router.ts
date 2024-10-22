@@ -15,7 +15,7 @@ blogsRouter.get("/", async (req, res) => {
 blogsRouter.get("/:id", (req: any, res: any) => {
     const findedBlog = blogsRepository.getBlogById(req.params.id)
     if (findedBlog) {
-        res.send(200)
+        res.status(200).send(findedBlog)
     } else {
         res.send(404)
     }
@@ -29,7 +29,7 @@ blogsRouter.post("/", authMiddleware, ...blogValidator,
         sendAccumulatedErrorsMiddleware(req, res)
 
         const createdBlog = blogsRepository.createBlog(req.body)
-        res.status(200).json(createdBlog)
+        res.status(201).send(createdBlog)
     })
 
 blogsRouter.put("/:id", authMiddleware, ...blogValidator, (req: any, res: any) => {

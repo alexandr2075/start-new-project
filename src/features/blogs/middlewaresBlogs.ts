@@ -1,6 +1,6 @@
 import {body} from "express-validator";
 
-export const checkNameMiddleware = body('name').isString().withMessage('not string').trim().isLength({
+export const checkNameMiddleware = body('name').isString().trim().isLength({
     min: 1,
     max: 15
 }).withMessage('more then 15 or 0')
