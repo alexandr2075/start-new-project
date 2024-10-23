@@ -17,8 +17,8 @@ app.get('/', (req, res) => {
 // app.use('/', hometaskRouter);
 
 
-app.use('/ht_02/api/blogs', blogsRouter);
-app.use('/ht_02/api/posts', postsRouter);
-app.use('/ht_02/api/testing/all-data', testingRouter);
+app.use('/blogs', blogsRouter);
+app.use('/posts', postsRouter);
+app.use('/testing/all-data', testingRouter);
 // app.get(SETTINGS.PATH.VIDEOS, getVideosController)
 // app.use(SETTINGS.PATH.VIDEOS, videosRouter)
