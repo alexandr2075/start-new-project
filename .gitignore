@@ -2,6 +2,6 @@
 /.idea
 .DS_Store
 /dist
-.env.local
+.env
 .env.development.local
 .env.production.local
