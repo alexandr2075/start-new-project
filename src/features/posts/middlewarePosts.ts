@@ -1,5 +1,5 @@
 import {body} from "express-validator";
-import {blogsRepository} from "../blogs/repository-blogs";
+import {blogsRepository} from "../blogs/blogs-in-memory-repository";
 
 export const checkTitleMiddleware = body('title').isString().withMessage('not string').trim().isLength({
     min: 1,

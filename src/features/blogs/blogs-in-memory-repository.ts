@@ -2,17 +2,19 @@ import {dbBlogs} from "../../db/dbBlogs";
 import {BlogViewModel} from "../../types/viewModel";
 
 export const blogsRepository = {
-    getAllBlogs(): BlogViewModel[] {
+    async getAllBlogs(): Promise<BlogViewModel[]> {
         return dbBlogs
     },
 
-    createBlog(blog: Partial<BlogViewModel>) {
+    async createBlog(blog: Partial<BlogViewModel>) {
         const {name, description, websiteUrl} = blog;
         const newBlog = {
             id: Date.now().toString(),
             name,
             description,
-            websiteUrl
+            websiteUrl,
+            createdAt: new Date().toISOString(),
+            isMembership: false
         }
 
         dbBlogs.push(newBlog)
@@ -20,11 +22,11 @@ export const blogsRepository = {
 
     },
 
-    getBlogById(id: string): BlogViewModel | undefined {
-        return dbBlogs.find(b => b.id === id);
+    async getBlogById(id: string): Promise<BlogViewModel | undefined> {
+        return await dbBlogs.find(b => b.id === id);
     },
 
-    updateBlodById(id: string, updatedBlog: BlogViewModel) {
+    async updateBlodById(id: string, updatedBlog: BlogViewModel) {
         let findedBlog = dbBlogs.find(b => b.id === id)
         if (findedBlog) {
             findedBlog.name = updatedBlog.name;
@@ -38,7 +40,7 @@ export const blogsRepository = {
 
     },
 
-    deleteBlogById(id: string) {
+    async deleteBlogById(id: string) {
         for (let i = 0; i < dbBlogs.length; i++) {
             if (dbBlogs[i].id === id) {
                 dbBlogs.splice(i, 1);

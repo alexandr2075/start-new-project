@@ -3,6 +3,8 @@ export type BlogViewModel = {
     name: string | undefined;
     description: string | undefined;
     websiteUrl: string | undefined;
+    createdAt: string;
+    isMembership: boolean;
 }
 
 export type PostViewModel = {
@@ -12,4 +14,5 @@ export type PostViewModel = {
     content: string | undefined;
     blogId: string | undefined;
     blogName: string | undefined;
+    createdAt: string;
 }

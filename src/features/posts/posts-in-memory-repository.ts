@@ -1,17 +1,17 @@
 import {PostViewModel} from "../../types/viewModel";
 import {dbPosts} from "../../db/dbPosts";
-import {blogsRepository} from "../blogs/repository-blogs";
+import {blogsRepository} from "../blogs/blogs-in-memory-repository";
 
 export const postsRepository = {
     getAllPosts(): PostViewModel[] {
         return dbPosts
     },
 
-    createPost(post: Partial<PostViewModel>) {
+    async createPost(post: Partial<PostViewModel>) {
         const {title, shortDescription, content, blogId} = post;
-        let blogName: string | undefined = ''
+        let blog
         if (blogId) {
-            blogName = blogsRepository.getBlogById(blogId)?.name;
+            blog = await blogsRepository.getBlogById(blogId);
         }
         const newPost = {
             id: Date.now().toString(),
@@ -19,7 +19,8 @@ export const postsRepository = {
             shortDescription,
             content,
             blogId,
-            blogName
+            blogName: blog?.name,
+            createdAt: new Date().toISOString(),
         }
 
         dbPosts.push(newPost)
