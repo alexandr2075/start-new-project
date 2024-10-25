@@ -1,12 +1,16 @@
 import request from "supertest";
 import {app} from "../../src/app";
+import {SETTINGS} from "../../src/settings";
 
 describe('blogs', () => {
-
+    beforeAll(async () => {
+        await request(app).get(SETTINGS.PATH.TESTING_ALL_DATA)
+            .expect(204, {message: "All data is deleted"})
+    })
 
     it('Should return list all blogs', async () => {
         await request(app)
-            .get('/hometask_03/api/blogs')
+            .get(SETTINGS.PATH.BLOGS)
             .expect(404, {message: "No videos found"})
     })
 

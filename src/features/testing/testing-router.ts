@@ -1,5 +1,5 @@
 import express from "express";
-import {deleteAllData} from "./testingRepository";
+import {deleteAllData} from "./testing-in-memory-Repository";
 
 export const testingRouter = express.Router();
 

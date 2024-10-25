@@ -4,6 +4,7 @@ import cors from 'cors'
 import {blogsRouter} from "./features/blogs/blogs-router";
 import {postsRouter} from "./features/posts/posts-router";
 import {testingRouter} from "./features/testing/testing-router";
+import {SETTINGS} from "./settings";
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body и query во всех реквестах
@@ -17,8 +18,8 @@ app.get('/', (req, res) => {
 // app.use('/', hometaskRouter);
 
 
-app.use('/blogs', blogsRouter);
-app.use('/posts', postsRouter);
-app.use('/testing/all-data', testingRouter);
+app.use(SETTINGS.PATH.BLOGS, blogsRouter);
+app.use(SETTINGS.PATH.POSTS, postsRouter);
+app.use(SETTINGS.PATH.TESTING_ALL_DATA, testingRouter);
 // app.get(SETTINGS.PATH.VIDEOS, getVideosController)
 // app.use(SETTINGS.PATH.VIDEOS, videosRouter)

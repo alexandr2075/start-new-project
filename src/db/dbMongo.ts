@@ -9,9 +9,8 @@ export async function runDb(): Promise<boolean> {
 
     const db = client.db(SETTINGS.DB_NAME);
 
-    blogsCollection = db.collection(SETTINGS.PATH.BLOGS)
-
     try {
+        console.log(SETTINGS.DB_NAME)
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
         // Send a ping to confirm a successful connection
@@ -20,6 +19,7 @@ export async function runDb(): Promise<boolean> {
         return true
     } catch {
         // Ensures that the client will close when you finish/error
+        console.log("Error connecting to MongoDB!");
         await client.close();
         return false
     }
