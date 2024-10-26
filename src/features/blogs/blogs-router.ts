@@ -9,6 +9,7 @@ export const blogsRouter = express.Router();
 
 blogsRouter.get("/", async (req, res) => {
     const allBlogs: BlogViewModel[] = await blogsRepository.getAllBlogs()
+    console.log('allBlogs', allBlogs)
     res.status(200).send(allBlogs)
 })
 
@@ -49,7 +50,7 @@ blogsRouter.put("/:id", authMiddleware, ...blogValidator, async (req: any, res: 
 blogsRouter.delete("/:id", authMiddleware, async (req: any, res: any) => {
     const isDeleted = await blogsRepository.deleteBlogById(req.params.id)
     if (isDeleted) {
-        res.send(204)
+        res.sendStatus(204)
     }
-    res.send(404)
+    res.sendStatus(404)
 })

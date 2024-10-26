@@ -10,6 +10,7 @@ export const SETTINGS = {
         POSTS: '/posts',
         TESTING_ALL_DATA: '/testing/all-data'
     },
+    ADMIN_AUTH: process.env.ADMIN_AUTH || '',
     MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017',
     DB_NAME: process.env.DB_NAME || '',
 }

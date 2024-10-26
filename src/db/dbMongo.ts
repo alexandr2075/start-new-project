@@ -10,7 +10,6 @@ export async function runDb(): Promise<boolean> {
     const db = client.db(SETTINGS.DB_NAME);
 
     try {
-        console.log(SETTINGS.DB_NAME)
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
         // Send a ping to confirm a successful connection

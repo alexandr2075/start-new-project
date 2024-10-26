@@ -1,8 +1,8 @@
 import {Response, Request, NextFunction} from 'express';
+import {SETTINGS} from "../settings";
 
-export const ADMIN_AUTH = 'admin:qwerty' // get from SETTINGS
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const auth = req.headers['authorization'] as string // 'Basic xxxx'
+    const auth = req.headers['authorisation'] as string // 'Basic xxxx'
 
     if (!auth) {
         res
@@ -13,7 +13,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     // const buff = Buffer.from(auth.slice(6), 'base64')
     // const decodedAuth = buff.toString('utf8')
 
-    const buff2 = Buffer.from(ADMIN_AUTH, 'utf8')
+    const buff2 = Buffer.from(SETTINGS.ADMIN_AUTH, 'utf8')
     const codedAuth = buff2.toString('base64')
 
     // if (decodedAuth === ADMIN_AUTH || auth.slice(0, 5) !== 'Basic ') {
