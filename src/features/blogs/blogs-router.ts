@@ -1,6 +1,6 @@
 import express from "express";
 import {blogsRepository} from "./blogs-db-repository";
-import {blogValidator} from "./middlewaresBlogs";
+import {blogValidator, checkBlogIdFromParamMiddleware} from "./middlewaresBlogs";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
 import {Request, Response} from 'express';
@@ -55,6 +55,7 @@ blogsRouter.post("/", authMiddleware, ...blogValidator, sendAccumulatedErrorsMid
 
 //create new POST by blogId
 blogsRouter.post("/:blogId/posts", authMiddleware,
+    checkBlogIdFromParamMiddleware,
     checkTitleMiddleware,
     checkShortDescriptionMiddleware,
     checkContentMiddleware,
