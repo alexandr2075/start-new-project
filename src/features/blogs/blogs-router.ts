@@ -64,6 +64,7 @@ blogsRouter.post("/:blogId/posts", authMiddleware,
             const blogById = await blogsRepository.getBlogById(req.params.blogId);
             if (!blogById) {
                 res.sendStatus(HTTP_STATUS.NOT_FOUND)
+                return
             }
             const dataForPost = {
                 title: req.body.title,
