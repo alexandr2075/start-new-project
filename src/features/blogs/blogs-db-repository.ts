@@ -12,7 +12,7 @@ export const blogsRepository = {
         const search = defaultValues.searchNameTerm
             ? {name: {$regex: defaultValues.searchNameTerm, $options: 'i'}}
             : {}
-        const filter = {...search}
+        const filter = {...search, projection: {_id: 0}}
 
         const items = await client.db(SETTINGS.DB_NAME)
             .collection<BlogViewModel>('blogs').find(filter)

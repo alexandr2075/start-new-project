@@ -15,7 +15,7 @@ import {
 export const blogsRouter = express.Router();
 
 //get all blogs
-blogsRouter.get("/", async (req: Request<ReqBody>, res: Response) => {
+blogsRouter.get("/", async (req: Request, res: Response) => {
     const result = await blogsService.getAllBlogs(req.query)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
@@ -36,7 +36,7 @@ blogsRouter.get("/:id", async (req: Request, res: Response) => {
 })
 
 // get all POSTS for a specific blog
-blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
+blogsRouter.get("/:blogId/posts", ...blogValidator, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
     const result = await blogsService.getAllPostsById(req.params.blogId, req.query)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
