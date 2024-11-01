@@ -16,7 +16,7 @@ export const sendAccumulatedErrorsMiddleware = (req: Request, res: Response, nex
     }
 
     if (!result.isEmpty()) {
-        res.status(400).send({errorsMessages: resArrErr});
+        res.status(404).send({errorsMessages: resArrErr});
         return
     }
     next()
