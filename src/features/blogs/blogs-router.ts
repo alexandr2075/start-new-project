@@ -60,21 +60,20 @@ blogsRouter.post("/:blogId/posts", authMiddleware,
     checkContentMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        if (req.params.blogId) {
-            const blogById = await blogsRepository.getBlogById(req.params.blogId);
-            if (!blogById) {
-                res.sendStatus(HTTP_STATUS.NOT_FOUND)
-                return
-            }
-            const dataForPost = {
-                title: req.body.title,
-                shortDescription: req.body.shortDescription,
-                content: req.body.content,
-                blogId: req.params.blogId,
-            }
-            const createdBlog = await blogsRepository.createPostByBlogId(dataForPost)
-            res.status(HTTP_STATUS.CREATED).send(createdBlog)
+
+        const blogById = await blogsRepository.getBlogById(req.params.blogId);
+        if (!blogById) {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND)
+            return
         }
+        const dataForPost = {
+            title: req.body.title,
+            shortDescription: req.body.shortDescription,
+            content: req.body.content,
+            blogId: req.params.blogId,
+        }
+        const createdBlog = await blogsRepository.createPostByBlogId(dataForPost)
+        res.status(HTTP_STATUS.CREATED).send(createdBlog)
 
 
     })
