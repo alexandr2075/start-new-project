@@ -13,9 +13,7 @@ const app_1 = require("./app");
 const settings_1 = require("./settings");
 const dbMongo_1 = require("./db/dbMongo");
 const createApp = () => __awaiter(void 0, void 0, void 0, function* () {
-    const res = yield (0, dbMongo_1.runDb)();
-    if (!res)
-        process.exit(1);
+    yield (0, dbMongo_1.runDb)();
     app_1.app.listen(settings_1.SETTINGS.PORT, () => {
         console.log('...server started in port ' + settings_1.SETTINGS.PORT);
     });

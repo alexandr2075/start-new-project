@@ -14,3 +14,13 @@ export const SETTINGS = {
     MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017',
     DB_NAME: process.env.DB_NAME || '',
 }
+
+export const HTTP_STATUS = {
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    NOT_FOUND: 404,
+    OK: 200,
+    CREATED: 201,
+    NO_CONTENT: 204,
+
+}

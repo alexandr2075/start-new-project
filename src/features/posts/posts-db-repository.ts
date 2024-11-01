@@ -1,11 +1,11 @@
 import {PostViewModel} from "../../types/viewModel";
-import {blogsRepository} from "../blogs/blogs-in-memory-repository";
+import {blogsRepository} from "../blogs/blogs-db-repository";
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
 
 export const postsRepository = {
     async getAllPosts(): Promise<PostViewModel[]> {
-        return client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').find().toArray();
+        return client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').find({}, {projection: {_id: 0}}).toArray();
     },
 
     async createPost(post: Partial<PostViewModel>) {
@@ -23,12 +23,13 @@ export const postsRepository = {
             blogName: blog?.name,
             createdAt: new Date().toISOString(),
         }
-        return client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').insertOne(newPost);
+        const insertAcknow = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').insertOne(newPost);
+        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({_id: insertAcknow.insertedId}, {projection: {_id: 0}})
 
     },
 
     async getPostById(id: string): Promise<PostViewModel | null> {
-        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({id: id});
+        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({id: id}, {projection: {_id: 0}});
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
@@ -40,9 +41,7 @@ export const postsRepository = {
                 blogId: updatedPost.blogId,
             }
         });
-
         return result.matchedCount === 1
-
     },
 
     async deletePostById(id: string) {

@@ -1,11 +1,9 @@
 import {SETTINGS} from "../settings";
 import {MongoClient} from 'mongodb';
 
-export let blogsCollection: any;
-
 export const client = new MongoClient(SETTINGS.MONGO_URL);
 
-export async function runDb(): Promise<boolean> {
+export async function runDb() {
 
     const db = client.db(SETTINGS.DB_NAME);
 
@@ -15,12 +13,10 @@ export async function runDb(): Promise<boolean> {
         // Send a ping to confirm a successful connection
         await db.command({ping: 1});
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
-        return true
     } catch {
         // Ensures that the client will close when you finish/error
         console.log("Error connecting to MongoDB!");
         await client.close();
-        return false
     }
 
 }

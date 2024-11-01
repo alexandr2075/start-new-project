@@ -1,5 +1,5 @@
 import {body} from "express-validator";
-import {blogsRepository} from "../blogs/blogs-in-memory-repository";
+import {blogsRepository} from "../blogs/blogs-db-repository";
 
 export const checkTitleMiddleware = body('title').isString().withMessage('not string').trim().isLength({
     min: 1,
@@ -7,7 +7,7 @@ export const checkTitleMiddleware = body('title').isString().withMessage('not st
 }).withMessage('more then 30 or 0')
 
 export const checkBlogIdMiddleware = body('blogId').trim().isString().withMessage('not string').custom(async value => {
-    const blogById = blogsRepository.getBlogById(value);
+    const blogById = await blogsRepository.getBlogById(value);
     if (!blogById) {
         throw new Error('blog id not found');
     }

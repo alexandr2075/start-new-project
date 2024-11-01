@@ -1,6 +1,7 @@
 import {FieldValidationError, Result, validationResult} from "express-validator";
+import {NextFunction, Request, Response} from 'express';
 
-export const sendAccumulatedErrorsMiddleware = (req: any, res: any) => {
+export const sendAccumulatedErrorsMiddleware = (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     const result: Result<FieldValidationError> = validationResult(req);
     const resultErrors: Record<string, FieldValidationError> = result.mapped();
@@ -15,6 +16,8 @@ export const sendAccumulatedErrorsMiddleware = (req: any, res: any) => {
     }
 
     if (!result.isEmpty()) {
-        return res.status(400).send({errorsMessages: resArrErr});
+        res.status(400).send({errorsMessages: resArrErr});
+        return
     }
+    next()
 }

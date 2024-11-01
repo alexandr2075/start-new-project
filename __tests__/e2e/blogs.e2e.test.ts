@@ -1,6 +1,6 @@
 import request from "supertest";
 import {app} from "../../src/app";
-import {SETTINGS} from "../../src/settings";
+import {HTTP_STATUS, SETTINGS} from "../../src/settings";
 
 describe('blogs', () => {
 
@@ -14,7 +14,7 @@ describe('blogs', () => {
     it('Should return list all blogs', async () => {
         await request(app)
             .get(SETTINGS.PATH.BLOGS)
-            .expect(200)
+            .expect(HTTP_STATUS.OK)
     })
 
     it('Should return blog by id', async () => {
@@ -24,7 +24,7 @@ describe('blogs', () => {
         if (res.body[0]) {
             await request(app)
                 .get(`${SETTINGS.PATH.BLOGS}/${res.body[0].id}`)
-                .expect(200)
+                .expect(HTTP_STATUS.OK)
         }
 
     })
@@ -33,7 +33,7 @@ describe('blogs', () => {
 
         await request(app)
             .post(SETTINGS.PATH.BLOGS)
-            .set({authorisation: 'Basic ' + codedAuth})
+            .set({authorization: 'Basic ' + codedAuth})
             .send(
                 {
                     "name": "string",
@@ -41,19 +41,19 @@ describe('blogs', () => {
                     "websiteUrl": "https://ku8sxkBZ3omjy0iX7.com"
                 }
             )
-            .expect(201)
+            .expect(HTTP_STATUS.CREATED)
     })
 
     it(`Shouldn't create new blog in list of all blogs`, async () => {
         await request(app)
             .post(SETTINGS.PATH.BLOGS)
-            .set({authorisation: 'Basic ' + codedAuth})
+            .set({authorization: 'Basic ' + codedAuth})
             .send(
                 {
                     "name": "Sergey",
                 }
             )
-            .expect(400)
+            .expect(HTTP_STATUS.BAD_REQUEST)
     })
 
     it('Should delete blog by id', async () => {
@@ -65,7 +65,7 @@ describe('blogs', () => {
             await request(app)
                 .delete(`${SETTINGS.PATH.BLOGS}/${res.body[0].id}`)
                 .set({authorisation: 'Basic ' + codedAuth})
-                .expect(204)
+                .expect(HTTP_STATUS.NO_CONTENT)
         }
 
     })
