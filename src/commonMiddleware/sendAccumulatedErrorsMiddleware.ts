@@ -5,7 +5,6 @@ export const sendAccumulatedErrorsMiddleware = (req: Request, res: Response, nex
     // @ts-ignore
     const result: Result<FieldValidationError> = validationResult(req);
     const resultErrors: Record<string, FieldValidationError> = result.mapped();
-
     let resArrErr = []
 
     for (let i in resultErrors) {
@@ -16,7 +15,7 @@ export const sendAccumulatedErrorsMiddleware = (req: Request, res: Response, nex
     }
 
     if (!result.isEmpty()) {
-        res.status(404).send({errorsMessages: resArrErr});
+        res.status(400).send({errorsMessages: resArrErr});
         return
     }
     next()
