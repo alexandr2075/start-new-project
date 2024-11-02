@@ -36,7 +36,7 @@ blogsRouter.get("/:id", async (req: Request, res: Response) => {
 })
 
 // get all POSTS for a specific blog
-blogsRouter.get("/:blogId/posts", ...blogValidator, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
+blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
 
     const blogById = await blogsRepository.getBlogById(req.params.blogId);
     if (!blogById) {
