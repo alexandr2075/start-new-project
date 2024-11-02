@@ -12,17 +12,16 @@ export const blogsRepository = {
         const search = defaultValues.searchNameTerm
             ? {name: {$regex: defaultValues.searchNameTerm, $options: 'i'}}
             : {}
-        const filter = {...search, projection: {_id: 0}}
 
         const items = await client.db(SETTINGS.DB_NAME)
-            .collection<BlogViewModel>('blogs').find(filter)
+            .collection<BlogViewModel>('blogs').find(search, {projection: {_id: 0}})
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
             .toArray()
 
         const totalCount = await client.db(SETTINGS.DB_NAME)
-            .collection<BlogViewModel>('blogs').countDocuments(filter)
+            .collection<BlogViewModel>('blogs').countDocuments(search)
 
         return {
             pagesCount: Math.ceil(totalCount / defaultValues.pageSize),

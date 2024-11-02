@@ -62,6 +62,7 @@ blogsRouter.post("/:blogId/posts", authMiddleware,
     async (req: Request, res: Response) => {
 
         const blogById = await blogsRepository.getBlogById(req.params.blogId);
+        // console.log('blogId', blogById)
         if (!blogById) {
             res.sendStatus(HTTP_STATUS.NOT_FOUND)
             return
