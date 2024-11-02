@@ -37,7 +37,7 @@ export const blogsRepository = {
         const defaultValues = paginationQueries(query)
 
         const items = await client.db(SETTINGS.DB_NAME)
-            .collection<PostViewModel>('posts').find({blogId: blogId, projection: {_id: 0}})
+            .collection<PostViewModel>('posts').find({blogId: blogId}, {projection: {_id: 0}})
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)

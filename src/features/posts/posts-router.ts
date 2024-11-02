@@ -1,17 +1,17 @@
 import express from "express";
-import {PostViewModel} from "../../types/viewModel";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {postsRepository} from "./posts-db-repository";
 import {postValidator} from "./middlewarePosts";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
 import {Request, Response} from 'express';
 import {HTTP_STATUS} from "../../settings";
+import {ResponseModel} from "../../models/responseModel";
 
 
 export const postsRouter = express.Router();
 
 postsRouter.get("/", async (req: Request, res: Response) => {
-    const allPosts: PostViewModel[] = await postsRepository.getAllPosts(req.query)
+    const allPosts: ResponseModel = await postsRepository.getAllPosts(req.query)
     res.status(HTTP_STATUS.OK).send(allPosts)
 })
 
