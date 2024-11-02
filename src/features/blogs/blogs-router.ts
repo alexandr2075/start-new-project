@@ -1,6 +1,6 @@
 import express from "express";
 import {blogsRepository} from "./blogs-db-repository";
-import {blogValidator, checkBlogIdFromParamMiddleware} from "./middlewaresBlogs";
+import {blogValidator} from "./middlewaresBlogs";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
 import {Request, Response} from 'express';
@@ -36,7 +36,14 @@ blogsRouter.get("/:id", async (req: Request, res: Response) => {
 })
 
 // get all POSTS for a specific blog
-blogsRouter.get("/:blogId/posts", checkBlogIdFromParamMiddleware, ...blogValidator, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
+blogsRouter.get("/:blogId/posts", ...blogValidator, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
+
+    const blogById = await blogsRepository.getBlogById(req.params.blogId);
+    if (!blogById) {
+        res.send(HTTP_STATUS.NOT_FOUND)
+        return
+    }
+
     const result = await blogsService.getAllPostsById(req.params.blogId, req.query)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
@@ -62,7 +69,7 @@ blogsRouter.post("/:blogId/posts", authMiddleware,
     async (req: Request, res: Response) => {
 
         const blogById = await blogsRepository.getBlogById(req.params.blogId);
-        // console.log('blogId', blogById)
+        console.log('blogId', blogById)
         if (!blogById) {
             res.sendStatus(HTTP_STATUS.NOT_FOUND)
             return
