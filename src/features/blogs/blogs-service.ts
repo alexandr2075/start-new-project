@@ -1,6 +1,6 @@
 import {BlogViewModel} from "../../types/viewModel";
 import {blogsRepository} from "./blogs-db-repository";
-import {BlogQuery} from "../../models/blogQueryModel";
+import {BlogQuery} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 
 export const blogsService = {

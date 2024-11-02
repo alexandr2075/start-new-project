@@ -11,7 +11,7 @@ import {HTTP_STATUS} from "../../settings";
 export const postsRouter = express.Router();
 
 postsRouter.get("/", async (req: Request, res: Response) => {
-    const allPosts: PostViewModel[] = await postsRepository.getAllPosts()
+    const allPosts: PostViewModel[] = await postsRepository.getAllPosts(req.query)
     res.status(HTTP_STATUS.OK).send(allPosts)
 })
 

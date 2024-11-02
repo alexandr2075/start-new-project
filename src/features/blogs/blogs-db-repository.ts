@@ -2,12 +2,12 @@ import {BlogViewModel, PostViewModel} from "../../types/viewModel";
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
 import {paginationQueries} from "../../helpers/pagination-queries";
-import {BlogQuery} from "../../models/blogQueryModel";
+import {RequestQuery} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {postsRepository} from "../posts/posts-db-repository";
 
 export const blogsRepository = {
-    async getAllBlogs(query: BlogQuery): Promise<ResponseModel> {
+    async getAllBlogs(query: RequestQuery): Promise<ResponseModel> {
         const defaultValues = paginationQueries(query)
         const search = defaultValues.searchNameTerm
             ? {name: {$regex: defaultValues.searchNameTerm, $options: 'i'}}
@@ -33,11 +33,11 @@ export const blogsRepository = {
 
     },
 
-    async getAllPostsById(blogId: string, query: BlogQuery): Promise<ResponseModel> {
+    async getAllPostsById(blogId: string, query: RequestQuery): Promise<ResponseModel> {
         const defaultValues = paginationQueries(query)
 
         const items = await client.db(SETTINGS.DB_NAME)
-            .collection<PostViewModel>('posts').find({blogId: blogId})
+            .collection<PostViewModel>('posts').find({blogId: blogId, projection: {_id: 0}})
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)

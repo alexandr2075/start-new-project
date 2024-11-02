@@ -2,10 +2,31 @@ import {PostViewModel} from "../../types/viewModel";
 import {blogsRepository} from "../blogs/blogs-db-repository";
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
+import {paginationQueries} from "../../helpers/pagination-queries";
+import {RequestQuery} from "../../models/queryModel";
+import {ResponseModel} from "../../models/responseModel";
 
 export const postsRepository = {
-    async getAllPosts(): Promise<PostViewModel[]> {
-        return client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').find({}, {projection: {_id: 0}}).toArray();
+    async getAllPosts(query: RequestQuery): Promise<ResponseModel> {
+        const defaultValues = paginationQueries(query)
+
+        const items = await client.db(SETTINGS.DB_NAME)
+            .collection<PostViewModel>('posts').find({}, {projection: {_id: 0}})
+            .sort(defaultValues.sortBy, defaultValues.sortDirection)
+            .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
+            .limit(defaultValues.pageSize)
+            .toArray()
+
+        const totalCount = await client.db(SETTINGS.DB_NAME)
+            .collection<PostViewModel>('posts').countDocuments()
+
+        return {
+            pagesCount: Math.ceil(totalCount / defaultValues.pageSize),
+            page: defaultValues.pageNumber,
+            pageSize: defaultValues.pageSize,
+            totalCount,
+            items: items
+        }
     },
 
     async createPost(post: Partial<PostViewModel>) {
