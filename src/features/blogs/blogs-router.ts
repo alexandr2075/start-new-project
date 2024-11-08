@@ -11,12 +11,15 @@ import {
     checkShortDescriptionMiddleware,
     checkTitleMiddleware,
 } from "../posts/middlewarePosts";
+import {BlogQueryFilter} from "../../models/queryModel";
+import {ReqWithParams, ReqWithParamsAndQuery, ReqWithQuery} from "../../types/requestPaginationFilter";
 
 export const blogsRouter = express.Router();
 
 //get all blogs
-blogsRouter.get("/", async (req: Request, res: Response) => {
-    const result = await blogsService.getAllBlogs(req.query)
+blogsRouter.get("/", async (req: ReqWithQuery<BlogQueryFilter>, res: Response) => {
+    const queryFilter = req.query;
+    const result = await blogsService.getAllBlogs(queryFilter)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
     } else {
@@ -26,8 +29,9 @@ blogsRouter.get("/", async (req: Request, res: Response) => {
 })
 
 //get blog by id
-blogsRouter.get("/:id", async (req: Request, res: Response) => {
-    const findedBlog = await blogsService.getBlogById(req.params.id)
+blogsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response) => {
+    const blogId = req.params.id
+    const findedBlog = await blogsService.getBlogById(blogId)
     if (findedBlog) {
         res.status(HTTP_STATUS.OK).send(findedBlog)
     } else {
@@ -36,15 +40,18 @@ blogsRouter.get("/:id", async (req: Request, res: Response) => {
 })
 
 // get all POSTS for a specific blog
-blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
-
-    const blogById = await blogsRepository.getBlogById(req.params.blogId);
-    if (!blogById) {
+blogsRouter.get("/:blogId/posts", async (req: ReqWithParamsAndQuery<{
+    blogId: string
+}, BlogQueryFilter>, res: Response) => {
+    const blogId = req.params.blogId
+    const queryFilter = req.query;
+    const blog = await blogsRepository.getBlogById(blogId);
+    if (!blog) {
         res.send(HTTP_STATUS.NOT_FOUND)
         return
     }
 
-    const result = await blogsService.getAllPostsById(req.params.blogId, req.query)
+    const result = await blogsService.getAllPostsById(blogId, queryFilter)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
     } else {
@@ -56,7 +63,8 @@ blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
 //create new blog
 blogsRouter.post("/", authMiddleware, ...blogValidator, sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const createdBlog = await blogsService.createBlog(req.body)
+        const dataBody = req.body;
+        const createdBlog = await blogsService.createBlog(dataBody)
         res.status(HTTP_STATUS.CREATED).send(createdBlog)
     })
 
@@ -68,17 +76,18 @@ blogsRouter.post("/:blogId/posts", authMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
 
-        const blogById = await blogsRepository.getBlogById(req.params.blogId);
-        console.log('blogId', blogById)
-        if (!blogById) {
+        const dataBody = req.body;
+        const blogId = req.params.blogId
+        const blog = await blogsRepository.getBlogById(blogId);
+        if (!blog) {
             res.sendStatus(HTTP_STATUS.NOT_FOUND)
             return
         }
         const dataForPost = {
-            title: req.body.title,
-            shortDescription: req.body.shortDescription,
-            content: req.body.content,
-            blogId: req.params.blogId,
+            title: dataBody.title,
+            shortDescription: dataBody.shortDescription,
+            content: dataBody.content,
+            blogId,
         }
         const createdBlog = await blogsRepository.createPostByBlogId(dataForPost)
         res.status(HTTP_STATUS.CREATED).send(createdBlog)

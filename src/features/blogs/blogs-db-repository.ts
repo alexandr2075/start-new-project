@@ -1,14 +1,14 @@
 import {BlogViewModel, PostViewModel} from "../../types/viewModel";
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
-import {paginationQueries} from "../../helpers/pagination-queries";
-import {RequestQuery} from "../../models/queryModel";
+import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
+import {BlogQueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {postsRepository} from "../posts/posts-db-repository";
 
 export const blogsRepository = {
-    async getAllBlogs(query: RequestQuery): Promise<ResponseModel> {
-        const defaultValues = paginationQueries(query)
+    async getAllBlogs(query: BlogQueryFilter): Promise<ResponseModel> {
+        const defaultValues = paginationQueriesBlogs(query)
         const search = defaultValues.searchNameTerm
             ? {name: {$regex: defaultValues.searchNameTerm, $options: 'i'}}
             : {}
@@ -33,8 +33,8 @@ export const blogsRepository = {
 
     },
 
-    async getAllPostsById(blogId: string, query: RequestQuery): Promise<ResponseModel> {
-        const defaultValues = paginationQueries(query)
+    async getAllPostsById(blogId: string, query: BlogQueryFilter): Promise<ResponseModel> {
+        const defaultValues = paginationQueriesBlogs(query)
 
         const items = await client.db(SETTINGS.DB_NAME)
             .collection<PostViewModel>('posts').find({blogId: blogId}, {projection: {_id: 0}})

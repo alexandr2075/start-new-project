@@ -1,15 +1,15 @@
 import {BlogViewModel} from "../../types/viewModel";
 import {blogsRepository} from "./blogs-db-repository";
-import {BlogQuery} from "../../models/queryModel";
+import {BlogQueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 
 export const blogsService = {
-    async getAllBlogs(query: BlogQuery): Promise<ResponseModel> {
+    async getAllBlogs(query: BlogQueryFilter): Promise<ResponseModel> {
         return await blogsRepository.getAllBlogs(query)
 
     },
 
-    async getAllPostsById(id: string, query: BlogQuery): Promise<ResponseModel> {
+    async getAllPostsById(id: string, query: BlogQueryFilter): Promise<ResponseModel> {
         return await blogsRepository.getAllPostsById(id, query)
 
     },

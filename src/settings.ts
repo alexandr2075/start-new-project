@@ -8,6 +8,7 @@ export const SETTINGS = {
     PATH: {
         BLOGS: '/blogs',
         POSTS: '/posts',
+        USERS: '/users',
         TESTING_ALL_DATA: '/testing/all-data'
     },
     ADMIN_AUTH: process.env.ADMIN_AUTH || '',

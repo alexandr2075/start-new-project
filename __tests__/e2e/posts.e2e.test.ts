@@ -38,7 +38,7 @@ describe('Course', () => {
         }
 
         const createdBlog = await blogsRepository.createBlog(newBlog)
-
+        console.log(createdBlog)
         await request(app)
             .post(SETTINGS.PATH.POSTS)
             .set({authorization: 'Basic ' + codedAuth})
@@ -47,7 +47,7 @@ describe('Course', () => {
                     "title": "string",
                     "shortDescription": "string",
                     "content": "https://ku8sxkBZ3omjy0iX7.com",
-                    "blogId": createdBlog?.id
+                    "blogId": createdBlog?._id.toString(),
                 }
             )
             .expect(201)

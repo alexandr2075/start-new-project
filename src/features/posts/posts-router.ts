@@ -6,16 +6,20 @@ import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumu
 import {Request, Response} from 'express';
 import {HTTP_STATUS} from "../../settings";
 import {ResponseModel} from "../../models/responseModel";
+import {ReqWithParams, ReqWithQuery} from "../../types/requestPaginationFilter";
+import {PostQueryFilter} from "../../models/queryModel";
 
 
 export const postsRouter = express.Router();
 
-postsRouter.get("/", async (req: Request, res: Response) => {
+//get all posts
+postsRouter.get("/", async (req: ReqWithQuery<PostQueryFilter>, res: Response) => {
     const allPosts: ResponseModel = await postsRepository.getAllPosts(req.query)
     res.status(HTTP_STATUS.OK).send(allPosts)
 })
 
-postsRouter.get("/:id", async (req: Request, res: Response) => {
+//get post by id
+postsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response) => {
     const findedPost = await postsRepository.getPostById(req.params.id)
     if (findedPost) {
         res.status(HTTP_STATUS.OK).send(findedPost)
@@ -24,12 +28,14 @@ postsRouter.get("/:id", async (req: Request, res: Response) => {
     }
 })
 
+//create new post
 postsRouter.post("/", authMiddleware, ...postValidator, sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
         const createdPost = await postsRepository.createPost(req.body)
         res.status(HTTP_STATUS.CREATED).send(createdPost)
     })
 
+// update post by id
 postsRouter.put("/:id", authMiddleware, ...postValidator, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
     const isUpdatedPost = await postsRepository.updatePostById(req.params.id, req.body)
 
@@ -40,6 +46,7 @@ postsRouter.put("/:id", authMiddleware, ...postValidator, sendAccumulatedErrorsM
     }
 })
 
+// delete post by id
 postsRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
     const isDeleted = await postsRepository.deletePostById(req.params.id)
     if (isDeleted) {

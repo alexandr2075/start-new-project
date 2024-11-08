@@ -2,32 +2,8 @@ import {PostViewModel} from "../../types/viewModel";
 import {blogsRepository} from "../blogs/blogs-db-repository";
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
-import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
-import {BlogQueryFilter} from "../../models/queryModel";
-import {ResponseModel} from "../../models/responseModel";
 
-export const postsRepository = {
-    async getAllPosts(query: BlogQueryFilter): Promise<ResponseModel> {
-        const defaultValues = paginationQueriesBlogs(query)
-
-        const items = await client.db(SETTINGS.DB_NAME)
-            .collection<PostViewModel>('posts').find({}, {projection: {_id: 0}})
-            .sort(defaultValues.sortBy, defaultValues.sortDirection)
-            .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
-            .limit(defaultValues.pageSize)
-            .toArray()
-
-        const totalCount = await client.db(SETTINGS.DB_NAME)
-            .collection<PostViewModel>('posts').countDocuments()
-
-        return {
-            pagesCount: Math.ceil(totalCount / defaultValues.pageSize),
-            page: defaultValues.pageNumber,
-            pageSize: defaultValues.pageSize,
-            totalCount,
-            items: items
-        }
-    },
+export const postsService = {
 
     async createPost(post: Partial<PostViewModel>) {
         const {title, shortDescription, content, blogId} = post;
@@ -49,9 +25,6 @@ export const postsRepository = {
 
     },
 
-    async getPostById(id: string): Promise<PostViewModel | null> {
-        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({id: id}, {projection: {_id: 0}});
-    },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
         const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').updateOne({id: id}, {

@@ -8,7 +8,7 @@ export type QueriesForPagination = {
     searchNameTerm: string;
 }
 
-export const paginationQueries = (query: any): QueriesForPagination => {
+export const paginationQueriesBlogs = (query: any): QueriesForPagination => {
     return {
         pageNumber: query.pageNumber ? +query.pageNumber : 1,
         pageSize: query.pageSize !== undefined ? +query.pageSize : 10,

@@ -5,6 +5,7 @@ import {blogsRouter} from "./features/blogs/blogs-router";
 import {postsRouter} from "./features/posts/posts-router";
 import {testingRouter} from "./features/testing/testing-router";
 import {SETTINGS} from "./settings";
+import {usersRouter} from "./features/users/users-router";
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body и query во всех реквестах
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 
 app.use(SETTINGS.PATH.BLOGS, blogsRouter);
 app.use(SETTINGS.PATH.POSTS, postsRouter);
+app.use(SETTINGS.PATH.USERS, usersRouter);
 app.use(SETTINGS.PATH.TESTING_ALL_DATA, testingRouter);
 // app.get(SETTINGS.PATH.VIDEOS, getVideosController)
 // app.use(SETTINGS.PATH.VIDEOS, videosRouter)
