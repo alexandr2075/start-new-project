@@ -7,7 +7,7 @@ import {Request, Response} from 'express';
 export const testingRouter = express.Router();
 
 testingRouter.delete("/", async (req: Request, res: Response) => {
-    deleteAllData()
+    await deleteAllData()
     res.status(HTTP_STATUS.NO_CONTENT).send("All data is deleted");
 
 })

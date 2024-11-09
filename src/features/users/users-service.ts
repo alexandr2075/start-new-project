@@ -8,27 +8,27 @@ export const usersService = {
         const {login, email, password} = userInput
         const isExistsLogin = await usersRepository.getUserByLogin(login)
         const isExistsEmail = await usersRepository.getUserByEmail(email)
-        if (isExistsEmail) {
-            return {
-                "errorsMessages": [
-                    {
-                        "message": "email already exists",
-                        "field": "email"
-                    }
-                ]
-            }
-        }
-        if (isExistsLogin) {
-            return {
-                "errorsMessages": [
-                    {
-                        "message": "login already exists",
-                        "field": "login"
-                    }
-                ]
-            }
-
-        }
+        // if (isExistsEmail) {
+        //     return {
+        //         "errorsMessages": [
+        //             {
+        //                 "message": "email already exists",
+        //                 "field": "email"
+        //             }
+        //         ]
+        //     }
+        // }
+        // if (isExistsLogin) {
+        //     return {
+        //         "errorsMessages": [
+        //             {
+        //                 "message": "login already exists",
+        //                 "field": "login"
+        //             }
+        //         ]
+        //     }
+        //
+        // }
         const hashPassword = await genHashPassword(password)
 
         const newUser = {

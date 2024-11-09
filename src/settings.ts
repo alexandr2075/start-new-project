@@ -11,6 +11,11 @@ export const SETTINGS = {
         USERS: '/users',
         TESTING_ALL_DATA: '/testing/all-data'
     },
+    NAME_COLLECTIONS: {
+        BLOGS: 'blogs',
+        POSTS: 'posts',
+        USERS: 'users',
+    },
     ADMIN_AUTH: process.env.ADMIN_AUTH || '',
     MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017',
     DB_NAME: process.env.DB_NAME || '',
