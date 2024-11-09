@@ -25,7 +25,14 @@ export const usersQueryRepository = {
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
             .toArray()
-
+        const itemsWithId = items.map((user) => {
+            return {
+                id: user._id.toString(),
+                login: user.login,
+                email: user.email,
+                createdAt: user.createdAt
+            }
+        })
         const totalCount = await client.db(SETTINGS.DB_NAME)
             .collection<UserViewModel>('users').countDocuments(search)
 
@@ -34,7 +41,7 @@ export const usersQueryRepository = {
             page: defaultValues.pageNumber,
             pageSize: defaultValues.pageSize,
             totalCount,
-            items: items
+            items: itemsWithId
         }
     },
 
