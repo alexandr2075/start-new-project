@@ -39,7 +39,17 @@ export const usersQueryRepository = {
     },
 
     async getUserByObjectId(_id: ObjectId) {
-        return await client.db(SETTINGS.DB_NAME).collection<UserViewModel>('users').findOne({_id})
+        const result = await client.db(SETTINGS.DB_NAME).collection<UserViewModel>('users')
+            .findOne({_id}, {projection: {password: 0}})
+        if (result) {
+            return {
+                id: result._id.toString(),
+                login: result.login,
+                email: result.email,
+                createdAt: result.createdAt,
+            }
+        }
+        return false
     },
 
 }
