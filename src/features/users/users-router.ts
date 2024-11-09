@@ -25,8 +25,11 @@ usersRouter.get("/", async (req: ReqWithQuery<QueryUserModel>, res: Response) =>
 usersRouter.post("/", authMiddleware, ...userValidator, sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
         const dataBody = req.body;
-        const createdUser = await usersService.createUser(dataBody)
+        const result = await usersService.createUser(dataBody)
+        const createdUser = await usersQueryRepository.getUserByObjectId(result.insertedId)
         res.status(HTTP_STATUS.CREATED).send(createdUser)
+
+
     })
 
 //delete user by id

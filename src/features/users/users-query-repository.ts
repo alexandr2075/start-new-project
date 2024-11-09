@@ -3,6 +3,7 @@ import {SETTINGS} from "../../settings";
 import {QueryUserModel} from "../../models/usersModels";
 import {paginationQueriesUsers} from "../../helpers/pagination-queries-users";
 import {UsersViewModel, UserViewModel} from "../../models/usersModels";
+import {ObjectId} from "mongodb";
 
 export const usersQueryRepository = {
     async getAllUsers(query: QueryUserModel): Promise<UsersViewModel> {
@@ -35,6 +36,10 @@ export const usersQueryRepository = {
             totalCount,
             items: items
         }
+    },
+
+    async getUserByObjectId(_id: ObjectId) {
+        return await client.db(SETTINGS.DB_NAME).collection<UserViewModel>('users').findOne({_id})
     },
 
 }
