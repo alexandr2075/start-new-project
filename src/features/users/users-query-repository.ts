@@ -10,14 +10,12 @@ export const usersQueryRepository = {
         const defaultValues = paginationQueriesUsers(query)
         let search = {};
 
-        if (defaultValues.searchLoginTerm) {
-            search = {login: {$regex: defaultValues.searchLoginTerm, $options: 'i'}}
+        if (defaultValues.searchLoginTerm || defaultValues.searchEmailTerm) {
+            search = {
+                $or: [{login: {$regex: defaultValues.searchLoginTerm, $options: 'i'}},
+                    {email: {$regex: defaultValues.searchEmailTerm, $options: 'i'}}]
+            }
         }
-
-        if (defaultValues.searchEmailTerm) {
-            search = {email: {$regex: defaultValues.searchEmailTerm, $options: 'i'}}
-        }
-
 
         const items = await client.db(SETTINGS.DB_NAME)
             .collection<UserViewModel>('users').find(search)
