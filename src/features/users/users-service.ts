@@ -41,6 +41,8 @@ export const usersService = {
     },
 
     async deleteUserById(id: string): Promise<boolean> {
+        // const validateObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id)
+        // if (!validateObjectId) return false
         return await usersRepository.deleteUserById(id)
     }
 }

@@ -1,4 +1,4 @@
-import {body} from "express-validator";
+import {body, param} from "express-validator";
 
 export const checkLoginMiddleware = body('login')
     .isString()
@@ -18,6 +18,11 @@ export const checkEmailMiddleware = body('email')
     .trim()
     .matches(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)
     .withMessage('not email address')
+
+
+export const checkIdMiddleware = param('id')
+    .custom((value) => /^[0-9a-fA-F]{24}$/.test(value))
+    .withMessage('Invalid ObjectId format');
 
 export const userValidator = [
     checkLoginMiddleware,
