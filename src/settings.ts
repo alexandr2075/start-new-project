@@ -9,6 +9,7 @@ export const SETTINGS = {
         BLOGS: '/blogs',
         POSTS: '/posts',
         USERS: '/users',
+        AUTH_LOGIN: '/auth/login',
         TESTING_ALL_DATA: '/testing/all-data'
     },
     NAME_COLLECTIONS: {

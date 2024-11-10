@@ -19,6 +19,11 @@ export const checkEmailMiddleware = body('email')
     .matches(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)
     .withMessage('not email address')
 
+export const checkIsStringMiddleware = body('loginOrEmail')
+    .isString()
+    .trim()
+    .isLength({min: 3, max: 100})
+    .withMessage('more than 100 or less than 3')
 
 export const checkIdMiddleware = param('id')
     .custom((value) => /^[0-9a-fA-F]{24}$/.test(value))
