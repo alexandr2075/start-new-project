@@ -6,12 +6,14 @@ import {matchPasswords} from "../../helpers/genHashPassword";
 export const authLoginRepository = {
 
     async authLoginUser(loginOrEmail: string, password: string) {
-        const result = await client.db(SETTINGS.DB_NAME)
+        const user = await client.db(SETTINGS.DB_NAME)
             .collection<UserInputDBModel>('users').findOne({$or: [{login: loginOrEmail}, {email: loginOrEmail}]})
-        if (result) {
-            return await matchPasswords(password, result.password)
-        }
-        return false
+        if (!user) return null
+
+        const isPassCorrect = await matchPasswords(password, user.password)
+        if (!isPassCorrect) return null
+        console.log('user', user)
+        return user
     },
 
 }

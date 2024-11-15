@@ -1,34 +1,32 @@
-import {UserInputModel} from "../../models/usersModels";
+import {UserInputDBModel, UserInputModel} from "../../models/usersModels";
 import {genHashPassword} from "../../helpers/genHashPassword";
 import {usersRepository} from "./users-db-repository";
+import {ErrMessAndField, Result} from "../../types/result";
+import {InsertOneResult} from "mongodb";
 
 export const usersService = {
 
-    async createUser(userInput: UserInputModel) {
+    async createUser(userInput: UserInputModel): Promise<Result<InsertOneResult<UserInputDBModel>>> {
         const {login, email, password} = userInput
         const isExistsLogin = await usersRepository.getUserByLogin(login)
         const isExistsEmail = await usersRepository.getUserByEmail(email)
-        // if (isExistsEmail) {
-        //     return {
-        //         "errorsMessages": [
-        //             {
-        //                 "message": "email already exists",
-        //                 "field": "email"
-        //             }
-        //         ]
-        //     }
-        // }
-        // if (isExistsLogin) {
-        //     return {
-        //         "errorsMessages": [
-        //             {
-        //                 "message": "login already exists",
-        //                 "field": "login"
-        //             }
-        //         ]
-        //     }
-        //
-        // }
+        const errors: ErrMessAndField[] = []
+        if (isExistsEmail) {
+            errors.push({
+                "message": "email already exists",
+                "field": "email"
+            })
+        }
+        if (isExistsLogin) {
+            errors.push({
+                "message": "login already exists",
+                "field": "login"
+            })
+        }
+        if (errors.length) return ({
+            status: 400,
+            errors: errors
+        })
         const hashPassword = await genHashPassword(password)
 
         const newUser = {
@@ -37,7 +35,10 @@ export const usersService = {
             password: hashPassword,
             createdAt: new Date().toISOString(),
         }
-        return await usersRepository.createUser(newUser)
+        return {
+            status: 200,
+            data: (await usersRepository.createUser(newUser))
+        }
     },
 
     async deleteUserById(id: string): Promise<boolean> {

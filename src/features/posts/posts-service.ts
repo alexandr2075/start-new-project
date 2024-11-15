@@ -1,30 +1,37 @@
-import {PostViewModel} from "../../types/viewModel";
 import {blogsRepository} from "../blogs/blogs-db-repository";
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
+import {usersRepository} from "../users/users-db-repository";
+import {postsRepository} from "./posts-db-repository";
+import {PostInputModel, PostViewModel} from "../../models/postsModels";
 
 export const postsService = {
 
-    async createPost(post: Partial<PostViewModel>) {
-        const {title, shortDescription, content, blogId} = post;
-        let blog
-        if (blogId) {
-            blog = await blogsRepository.getBlogById(blogId);
-        }
+    async createPost(body: PostInputModel) {
+        const {title, shortDescription, content, blogId} = body;
+        const blog = await blogsRepository.getBlogById(blogId);
+        if (!blog) return null
+
         const newPost = {
-            id: Date.now().toString(),
             title,
             shortDescription,
             content,
             blogId,
-            blogName: blog?.name,
+            blogName: blog.name,
             createdAt: new Date().toISOString(),
         }
-        const insertAcknow = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').insertOne(newPost);
-        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({_id: insertAcknow.insertedId}, {projection: {_id: 0}})
-
+        const createdUser = await postsRepository.createPost(newPost)
+        if (!createdUser) return null
+        return {
+            id: createdUser._id.toString(),
+            title: createdUser.title,
+            shortDescription: createdUser.shortDescription,
+            content: createdUser.content,
+            blogId: createdUser.blogId,
+            blogName: createdUser.blogName,
+            createdAt: createdUser.createdAt,
+        }
     },
-
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
         const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').updateOne({id: id}, {
@@ -41,5 +48,24 @@ export const postsService = {
     async deletePostById(id: string) {
         const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').deleteOne({id: id});
         return result.deletedCount === 1
-    }
+    },
+
+    //create new comment by postId
+    async createCommentByPostId(postId: string, content: string, userId: any) {
+        const user = await usersRepository.getUserById(userId);
+        const post = await postsRepository.getPostById(postId);
+        if (!user) return null
+        if (!post) return null
+
+        const newComment = {
+            content,
+            commentatorInfo: {
+                userId: userId,
+                userLogin: user.login,
+            },
+            createdAt: new Date().toISOString(),
+        }
+        return await postsRepository.createCommentByPostId(newComment);
+    },
+
 }

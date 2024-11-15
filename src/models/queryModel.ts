@@ -1,13 +1,6 @@
 import {SortDirection} from "mongodb";
 
-export type BlogQueryFilter = {
-    pageNumber: number;
-    pageSize: number;
-    sortDirection: SortDirection;
-    sortBy: string;
-}
-
-export type PostQueryFilter = {
+export type QueryFilter = {
     pageNumber: number;
     pageSize: number;
     sortDirection: SortDirection;

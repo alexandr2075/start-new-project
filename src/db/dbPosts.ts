@@ -1,3 +1,3 @@
-import {PostViewModel} from "../types/viewModel";
+import {PostViewModelWithId} from "../models/postsModels";
 
-export const dbPosts: PostViewModel[] = []
+export const dbPosts: PostViewModelWithId[] = []

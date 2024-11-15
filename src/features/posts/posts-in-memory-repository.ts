@@ -1,13 +1,13 @@
-import {PostViewModel} from "../../types/viewModel";
 import {dbPosts} from "../../db/dbPosts";
 import {blogsRepository} from "../blogs/blogs-in-memory-repository";
+import {PostInputModel, PostViewModel} from "../../models/postsModels";
 
 export const postsRepository = {
     getAllPosts(): PostViewModel[] {
         return dbPosts
     },
 
-    async createPost(post: Partial<PostViewModel>) {
+    async createPost(post: PostInputModel) {
         const {title, shortDescription, content, blogId} = post;
         let blog
         if (blogId) {
@@ -28,7 +28,7 @@ export const postsRepository = {
 
     },
 
-    getPostById(id: string): PostViewModel | undefined {
+    getPostById(id: string) {
         return dbPosts.find(p => p.id === id);
     },
 

@@ -1,3 +1,6 @@
-export const isValidIdFromObjectId = (id: string) => {
-    return /^[0-9a-fA-F]{24}$/.test(id)
+import {ObjectId} from "mongodb";
+
+export const checkObjectId = (id: string) => {
+    return ObjectId.isValid(id)
 }
+

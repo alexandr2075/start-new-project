@@ -1,20 +1,23 @@
 import express from "express";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {postsRepository} from "./posts-db-repository";
-import {postValidator} from "./middlewarePosts";
+import {checkContentCommentMiddleware, postValidator} from "./middlewarePosts";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
 import {Request, Response} from 'express';
 import {HTTP_STATUS} from "../../settings";
 import {ResponseModel} from "../../models/responseModel";
 import {ReqWithParams, ReqWithQuery} from "../../types/requestPaginationFilter";
-import {PostQueryFilter} from "../../models/queryModel";
+import {QueryFilter} from "../../models/queryModel";
+import {postsService} from "./posts-service";
+import {accessTokenGuard} from "../auth-login/guards/access.token.guard";
+import {postsQueryRepository} from "./posts-query-repository";
 
 
 export const postsRouter = express.Router();
 
 //get all posts
-postsRouter.get("/", async (req: ReqWithQuery<PostQueryFilter>, res: Response) => {
-    const allPosts: ResponseModel = await postsRepository.getAllPosts(req.query)
+postsRouter.get("/", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
+    const allPosts: ResponseModel = await postsQueryRepository.getAllPosts(req.query)
     res.status(HTTP_STATUS.OK).send(allPosts)
 })
 
@@ -54,4 +57,24 @@ postsRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) =
         return
     }
     res.send(HTTP_STATUS.NOT_FOUND)
+})
+
+//create new comment by postId
+postsRouter.post("/:postId/comments", accessTokenGuard, checkContentCommentMiddleware, sendAccumulatedErrorsMiddleware,
+    async (req: Request, res: Response) => {
+        const postId = req.params.postId
+        const content = req.body.content
+        const userId = req.user
+        if (!userId) {
+            res.send(HTTP_STATUS.UNAUTHORIZED)
+            return
+        }
+        const createdCommentByPostId = await postsService.createCommentByPostId(postId, content, userId)
+        res.status(HTTP_STATUS.CREATED).send(createdCommentByPostId)
+    })
+
+//get all comments for specified post
+postsRouter.get("/postId/comments", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
+    const allComments = await postsQueryRepository.getAllCommentsForSpecifiedPost(req.query)
+    res.status(HTTP_STATUS.OK).send(allComments)
 })

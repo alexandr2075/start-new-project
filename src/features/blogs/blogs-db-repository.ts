@@ -1,13 +1,13 @@
-import {BlogViewModel, PostViewModel} from "../../types/viewModel";
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
 import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
-import {BlogQueryFilter} from "../../models/queryModel";
+import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
-import {postsRepository} from "../posts/posts-db-repository";
+import {PostViewModel} from "../../models/postsModels";
+import {BlogViewModel} from "../../models/blogsModels";
 
 export const blogsRepository = {
-    async getAllBlogs(query: BlogQueryFilter): Promise<ResponseModel> {
+    async getAllBlogs(query: QueryFilter): Promise<ResponseModel> {
         const defaultValues = paginationQueriesBlogs(query)
         const search = defaultValues.searchNameTerm
             ? {name: {$regex: defaultValues.searchNameTerm, $options: 'i'}}
@@ -33,11 +33,11 @@ export const blogsRepository = {
 
     },
 
-    async getAllPostsById(blogId: string, query: BlogQueryFilter): Promise<ResponseModel> {
+    async getAllPostsById(blogId: string, query: QueryFilter): Promise<ResponseModel> {
         const defaultValues = paginationQueriesBlogs(query)
 
         const items = await client.db(SETTINGS.DB_NAME)
-            .collection<PostViewModel>('posts').find({blogId: blogId}, {projection: {_id: 0}})
+            .collection<PostViewModel>('posts').find({blogId: blogId})
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
@@ -57,22 +57,17 @@ export const blogsRepository = {
 
     async createBlog(blog: Partial<BlogViewModel>) {
         const insertAcknow = await client.db(SETTINGS.DB_NAME).collection('blogs').insertOne(blog)
-        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({_id: insertAcknow.insertedId}, {projection: {_id: 0}})
+        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({_id: insertAcknow.insertedId})
     },
-
-    async createPostByBlogId(post: Partial<PostViewModel>) {
-        return await postsRepository.createPost(post)
-    },
-
 
     async getBlogById(id: string) {
-        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({id: id}, {projection: {_id: 0}})
+        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({id: id})
 
     },
 
     //get all posts for specific blog
     async getAllpostsByBlogById(id: string) {
-        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({id: id}, {projection: {_id: 0}})
+        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({id: id})
 
     },
 
@@ -90,5 +85,6 @@ export const blogsRepository = {
     async deleteBlogById(id: string): Promise<boolean> {
         const result = await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').deleteOne({id: id})
         return result.deletedCount === 1
-    }
+    },
+
 }

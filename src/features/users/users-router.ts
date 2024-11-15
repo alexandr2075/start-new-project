@@ -7,7 +7,7 @@ import {QueryUserModel} from "../../models/usersModels";
 import {usersQueryRepository} from "./users-query-repository";
 import {userValidator} from "./middlewaresUsers";
 import {usersService} from "./users-service";
-import {isValidIdFromObjectId} from "../../helpers/checkValidIdfromObjectId";
+import {checkObjectId} from "../../helpers/checkValidIdfromObjectId";
 
 export const usersRouter = express.Router();
 
@@ -24,17 +24,27 @@ usersRouter.get("/", async (req: ReqWithQuery<QueryUserModel>, res: Response) =>
 
 //create new user
 usersRouter.post("/", authMiddleware, ...userValidator, sendAccumulatedErrorsMiddleware,
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response): Promise<void> => {
         const dataBody = req.body;
         const result = await usersService.createUser(dataBody)
-        const createdUser = await usersQueryRepository.getUserByObjectId(result.insertedId)
-        res.status(HTTP_STATUS.CREATED).send(createdUser)
+        if (result.status === HTTP_STATUS.BAD_REQUEST) {
+            res.send({'errorsMessages': result.errors})
+            return
+        } else if (result.status === HTTP_STATUS.OK) {
+            const createdUser = await usersQueryRepository.getUserByObjectId(result.data!.insertedId)
+            res.status(HTTP_STATUS.CREATED).send(createdUser)
+            return
+        } else {
+            res.sendStatus(500)
+            return
+        }
+
     })
 
 //delete user by id
 usersRouter.delete("/:id", authMiddleware, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
     const id = req.params.id
-    const isValidId = isValidIdFromObjectId(id)
+    const isValidId = checkObjectId(id)
     if (!isValidId) {
         res.sendStatus(HTTP_STATUS.NOT_FOUND)
         return
