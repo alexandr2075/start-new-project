@@ -1,6 +1,6 @@
-import {BlogViewModel} from "../types/viewModel";
 import {CommentViewModel} from "./commentModel";
 import {PostViewModel} from "./postsModels";
+import {BlogViewModel} from "./blogsModels";
 
 export type ResponseModel = {
     pagesCount: number,

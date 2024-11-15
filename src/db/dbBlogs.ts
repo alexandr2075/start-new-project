@@ -1,3 +1,3 @@
-import {BlogViewModel} from "../types/viewModel";
+import {BlogViewModel} from "../models/blogsModels";
 
 export const dbBlogs: BlogViewModel[] = []

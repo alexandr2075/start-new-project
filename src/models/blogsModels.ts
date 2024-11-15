@@ -1,54 +1,21 @@
-import {SortDirection} from "mongodb";
+import {ObjectId} from "mongodb";
 
 export type BlogViewModel = {
     id: string;
-    name: string | undefined;
-    description: string | undefined;
-    websiteUrl: string | undefined;
+    name: string
+    description: string
+    websiteUrl: string
     createdAt: string;
     isMembership: boolean;
 }
 
-
-export type QueryPostModel = {
-    sortBy: string,
-    sortDirection: SortDirection,
-    pageNumber: number;
-    pageSize: number;
-}
-
-export type PostViewModel = {
-    title: string;
-    shortDescription: string;
-    content: string;
-    blogId: string;
-    blogName: string | undefined;
-    createdAt: string;
-}
-
-export type PostViewModelWithId = {
-    id: string;
-    title: string;
-    shortDescription: string;
-    content: string;
-    blogId: string;
-    blogName: string | undefined;
-    createdAt: string;
-}
-
-export type PostsViewModel = {
-    pagesCount: number;
-    page: number;
-    pageSize: number;
-    totalCount: number;
-    items: PostViewModel[];
-}
-
-export type PostInputModel = {
-    title: string;
-    shortDescription: string;
-    content: string;
-    blogId: string;
+export type BlogViewModelInDB = {
+    _id: ObjectId
+    name: string
+    description: string
+    websiteUrl: string
+    createdAt: string
+    isMembership: boolean
 }
 
 

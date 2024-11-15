@@ -4,7 +4,7 @@ import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
 import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {PostViewModel} from "../../models/postsModels";
-import {BlogViewModel} from "../../models/blogsModels";
+import {BlogViewModel, BlogViewModelInDB} from "../../models/blogsModels";
 
 export const blogsRepository = {
     async getAllBlogs(query: QueryFilter): Promise<ResponseModel> {
@@ -57,7 +57,7 @@ export const blogsRepository = {
 
     async createBlog(blog: Partial<BlogViewModel>) {
         const insertAcknow = await client.db(SETTINGS.DB_NAME).collection('blogs').insertOne(blog)
-        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({_id: insertAcknow.insertedId})
+        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModelInDB>('blogs').findOne({_id: insertAcknow.insertedId})
     },
 
     async getBlogById(id: string) {

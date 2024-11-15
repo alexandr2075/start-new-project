@@ -1,5 +1,5 @@
 import {dbBlogs} from "../../db/dbBlogs";
-import {BlogViewModel} from "../../types/viewModel";
+import {BlogViewModel} from "../../models/blogsModels";
 
 export const blogsRepository = {
     async getAllBlogs(): Promise<BlogViewModel[]> {
