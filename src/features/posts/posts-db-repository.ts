@@ -15,7 +15,7 @@ export const postsRepository = {
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
-        const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').updateOne({_id: new Object(id)}, {
+        const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').updateOne({_id: new ObjectId(id)}, {
             $set: {
                 title: updatedPost.title,
                 shortDescription: updatedPost.shortDescription,
@@ -27,7 +27,7 @@ export const postsRepository = {
     },
 
     async deletePostById(id: string) {
-        const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').deleteOne({_id: new Object(id)});
+        const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').deleteOne({_id: new ObjectId(id)});
         return result.deletedCount === 1
     },
 
