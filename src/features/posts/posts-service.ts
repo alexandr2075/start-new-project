@@ -1,6 +1,6 @@
 import {blogsRepository} from "../blogs/blogs-db-repository";
 import {client} from "../../db/dbMongo";
-import {SETTINGS} from "../../settings";
+import {HTTP_STATUS, SETTINGS} from "../../settings";
 import {usersRepository} from "../users/users-db-repository";
 import {postsRepository} from "./posts-db-repository";
 import {PostInputModel, PostViewModel} from "../../models/postsModels";
@@ -30,16 +30,20 @@ export const postsService = {
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
         const blog = await client.db(SETTINGS.DB_NAME)
-            .collection<BlogViewModel>('blogs').findOne({_id: new ObjectId(id)});
+            .collection<BlogViewModel>('blogs').findOne({_id: new ObjectId(updatedPost.blogId)});
         if (!blog) {
             return {
+                status: HTTP_STATUS.BAD_REQUEST,
                 errors: [{
                     message: "blogId not found",
                     field: "blogId"
                 }]
             }
         }
-        return await postsRepository.updatePostById(id, updatedPost)
+        return {
+            status: 204,
+            data: (await postsRepository.updatePostById(id, updatedPost))
+        }
     },
 
     async deletePostById(id: string) {
