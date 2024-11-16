@@ -6,6 +6,7 @@ import {ResponseModel} from "../../models/responseModel";
 import {PostViewModel} from "../../models/postsModels";
 import {BlogViewModel, BlogViewModelInDB} from "../../models/blogsModels";
 import {mapToOut} from "../../helpers/mapper";
+import {ObjectId} from "mongodb";
 
 export const blogsRepository = {
     async getAllBlogs(query: QueryFilter): Promise<ResponseModel> {
@@ -61,7 +62,7 @@ export const blogsRepository = {
     },
 
     async getBlogById(id: string) {
-        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({id: id})
+        return await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').findOne({_id: new ObjectId(id)})
 
     },
 

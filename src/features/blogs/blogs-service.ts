@@ -2,6 +2,7 @@ import {blogsRepository} from "./blogs-db-repository";
 import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {BlogViewModel} from "../../models/blogsModels";
+import {mapToOut} from "../../helpers/mapper";
 
 export const blogsService = {
     async getAllBlogs(query: QueryFilter): Promise<ResponseModel> {
@@ -37,7 +38,9 @@ export const blogsService = {
 
 
     async getBlogById(id: string) {
-        return await blogsRepository.getBlogById(id)
+        const blog = await blogsRepository.getBlogById(id)
+        if (!blog) return null
+        return mapToOut(blog)
     },
 
     async updateBlodById(id: string, body: BlogViewModel) {
