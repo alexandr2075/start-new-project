@@ -5,6 +5,8 @@ import {usersRepository} from "../users/users-db-repository";
 import {postsRepository} from "./posts-db-repository";
 import {PostInputModel, PostViewModel} from "../../models/postsModels";
 import {mapToOut} from "../../helpers/mapper";
+import {BlogViewModel} from "../../models/blogsModels";
+import {ObjectId} from "mongodb";
 
 export const postsService = {
 //create new post
@@ -27,15 +29,17 @@ export const postsService = {
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
-        const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').updateOne({id: id}, {
-            $set: {
-                title: updatedPost.title,
-                shortDescription: updatedPost.shortDescription,
-                content: updatedPost.content,
-                blogId: updatedPost.blogId,
+        const blog = await client.db(SETTINGS.DB_NAME)
+            .collection<BlogViewModel>('blogs').findOne({_id: new ObjectId(id)});
+        if (!blog) {
+            return {
+                errors: [{
+                    message: "blogId not found",
+                    field: "blogId"
+                }]
             }
-        });
-        return result.matchedCount === 1
+        }
+        return await postsRepository.updatePostById(id, updatedPost)
     },
 
     async deletePostById(id: string) {

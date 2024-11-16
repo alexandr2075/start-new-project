@@ -40,7 +40,7 @@ postsRouter.post("/", authMiddleware, ...postValidator, sendAccumulatedErrorsMid
 
 // update post by id
 postsRouter.put("/:id", authMiddleware, ...postValidator, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
-    const isUpdatedPost = await postsRepository.updatePostById(req.params.id, req.body)
+    const isUpdatedPost = await postsService.updatePostById(req.params.id, req.body)
 
     if (isUpdatedPost) {
         res.sendStatus(HTTP_STATUS.NO_CONTENT)
