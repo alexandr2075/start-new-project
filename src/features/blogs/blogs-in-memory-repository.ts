@@ -6,20 +6,19 @@ export const blogsRepository = {
         return dbBlogs
     },
 
-    async createBlog(blog: Partial<BlogViewModel>) {
-        const {name, description, websiteUrl} = blog;
+    async createBlog(blog: BlogViewModel): Promise<BlogViewModel | null> {
+        const {name, description, websiteUrl, createdAt, isMembership} = blog;
         const newBlog = {
             id: Date.now().toString(),
             name,
             description,
             websiteUrl,
-            createdAt: new Date().toISOString(),
-            isMembership: false
+            createdAt,
+            isMembership
         }
 
         dbBlogs.push(newBlog)
         return newBlog
-
     },
 
     async getBlogById(id: string): Promise<BlogViewModel | undefined> {

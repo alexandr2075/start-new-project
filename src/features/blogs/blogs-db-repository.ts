@@ -5,6 +5,7 @@ import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {PostViewModel} from "../../models/postsModels";
 import {BlogViewModel, BlogViewModelInDB} from "../../models/blogsModels";
+import {mapToOut} from "../../helpers/mapper";
 
 export const blogsRepository = {
     async getAllBlogs(query: QueryFilter): Promise<ResponseModel> {
@@ -14,12 +15,11 @@ export const blogsRepository = {
             : {}
 
         const items = await client.db(SETTINGS.DB_NAME)
-            .collection<BlogViewModel>('blogs').find(search, {projection: {_id: 0}})
+            .collection<BlogViewModel>('blogs').find(search)
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
             .toArray()
-
         const totalCount = await client.db(SETTINGS.DB_NAME)
             .collection<BlogViewModel>('blogs').countDocuments(search)
 
@@ -28,7 +28,7 @@ export const blogsRepository = {
             page: defaultValues.pageNumber,
             pageSize: defaultValues.pageSize,
             totalCount,
-            items: items
+            items: mapToOut(items)
         }
 
     },
