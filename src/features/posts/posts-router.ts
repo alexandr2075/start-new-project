@@ -23,7 +23,7 @@ postsRouter.get("/", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
 
 //get post by id
 postsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response) => {
-    const findedPost = await postsRepository.getPostById(req.params.id)
+    const findedPost = await postsQueryRepository.getPostById(req.params.id)
     if (findedPost) {
         res.status(HTTP_STATUS.OK).send(findedPost)
     } else {

@@ -2,6 +2,7 @@ import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
 import {CommentInputModel, CommentViewModel} from "../../models/commentModel";
 import {PostViewModel} from "../../models/postsModels";
+import {ObjectId} from "mongodb";
 
 export const postsRepository = {
     async createPost(newPost: PostViewModel) {
@@ -10,7 +11,7 @@ export const postsRepository = {
     },
 
     async getPostById(id: string): Promise<PostViewModel | null> {
-        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({id: id});
+        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({_id: new ObjectId(id)});
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {

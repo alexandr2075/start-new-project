@@ -14,6 +14,7 @@ import {
 import {QueryFilter} from "../../models/queryModel";
 import {ReqWithParams, ReqWithParamsAndQuery, ReqWithQuery} from "../../types/requestPaginationFilter";
 import {postsService} from "../posts/posts-service";
+import {blogsQueryRepository} from "./blogs-query-repository";
 
 export const blogsRouter = express.Router();
 
@@ -100,7 +101,7 @@ blogsRouter.post("/:blogId/posts", authMiddleware,
     async (req: Request, res: Response) => {
         const dataBody = req.body;
         const blogId = req.params.blogId
-        const blog = await blogsRepository.getBlogById(blogId);
+        const blog = await blogsQueryRepository.getBlogById(blogId);
         if (!blog) {
             res.sendStatus(HTTP_STATUS.NOT_FOUND)
             return

@@ -6,6 +6,8 @@ import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
 import {PostViewModel} from "../../models/postsModels";
+import {mapToOut} from "../../helpers/mapper";
+import {ObjectId} from "mongodb";
 
 export const postsQueryRepository = {
 
@@ -41,6 +43,13 @@ export const postsQueryRepository = {
             totalCount,
             items: itemsWithId
         }
+    },
+
+    async getPostById(id: string) {
+        const post = await client.db(SETTINGS.DB_NAME)
+            .collection<PostViewModel>('posts').findOne({_id: new ObjectId(id)});
+        if (!post) return null
+        return mapToOut(post)
     },
 
     async getAllCommentsForSpecifiedPost(query: QueryCommentsModel) {

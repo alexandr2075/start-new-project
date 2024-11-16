@@ -4,6 +4,7 @@ import {SETTINGS} from "../../settings";
 import {usersRepository} from "../users/users-db-repository";
 import {postsRepository} from "./posts-db-repository";
 import {PostInputModel, PostViewModel} from "../../models/postsModels";
+import {mapToOut} from "../../helpers/mapper";
 
 export const postsService = {
 
@@ -22,15 +23,7 @@ export const postsService = {
         }
         const createdUser = await postsRepository.createPost(newPost)
         if (!createdUser) return null
-        return {
-            id: createdUser._id.toString(),
-            title: createdUser.title,
-            shortDescription: createdUser.shortDescription,
-            content: createdUser.content,
-            blogId: createdUser.blogId,
-            blogName: createdUser.blogName,
-            createdAt: createdUser.createdAt,
-        }
+        return mapToOut(createdUser)
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
