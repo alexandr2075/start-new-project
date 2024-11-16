@@ -1,16 +1,10 @@
-import express from "express";
-import {blogsRepository} from "./blogs-db-repository";
+import express, {Request, Response} from "express";
 import {blogValidator} from "./middlewaresBlogs";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
-import {Request, Response} from 'express';
 import {HTTP_STATUS} from "../../settings";
 import {blogsService} from "./blogs-service";
-import {
-    checkContentMiddleware,
-    checkShortDescriptionMiddleware,
-    checkTitleMiddleware,
-} from "../posts/middlewarePosts";
+import {checkContentMiddleware, checkShortDescriptionMiddleware, checkTitleMiddleware,} from "../posts/middlewarePosts";
 import {QueryFilter} from "../../models/queryModel";
 import {ReqWithParams, ReqWithParamsAndQuery, ReqWithQuery} from "../../types/requestPaginationFilter";
 import {postsService} from "../posts/posts-service";
@@ -77,13 +71,13 @@ blogsRouter.get("/:blogId/posts", async (req: ReqWithParamsAndQuery<{
 }, QueryFilter>, res: Response) => {
     const blogId = req.params.blogId
     const queryFilter = req.query;
-    const blog = await blogsRepository.getBlogById(blogId);
+    const blog = await blogsQueryRepository.getBlogById(blogId);
     if (!blog) {
         res.send(HTTP_STATUS.NOT_FOUND)
         return
     }
 
-    const result = await blogsService.getAllPostsById(blogId, queryFilter)
+    const result = await blogsQueryRepository.getAllPostsById(blogId, queryFilter)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
     } else {

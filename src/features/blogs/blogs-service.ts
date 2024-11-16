@@ -1,19 +1,8 @@
 import {blogsRepository} from "./blogs-db-repository";
-import {QueryFilter} from "../../models/queryModel";
-import {ResponseModel} from "../../models/responseModel";
 import {BlogViewModel} from "../../models/blogsModels";
 import {mapToOut} from "../../helpers/mapper";
 
 export const blogsService = {
-    async getAllBlogs(query: QueryFilter): Promise<ResponseModel> {
-        return await blogsRepository.getAllBlogs(query)
-
-    },
-
-    async getAllPostsById(id: string, query: QueryFilter): Promise<ResponseModel> {
-        return await blogsRepository.getAllPostsById(id, query)
-
-    },
 
     async createBlog(blog: BlogViewModel) {
         const {name, description, websiteUrl} = blog;
