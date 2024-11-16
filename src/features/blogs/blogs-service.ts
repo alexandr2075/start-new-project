@@ -15,14 +15,7 @@ export const blogsService = {
         }
         const createdBlog = await blogsRepository.createBlog(newBlog)
         if (!createdBlog) return null
-        return {
-            id: createdBlog._id.toString(),
-            name: createdBlog.name,
-            description: createdBlog.description,
-            websiteUrl: createdBlog.websiteUrl,
-            createdAt: createdBlog.createdAt,
-            isMembership: createdBlog.isMembership
-        }
+        return mapToOut(createdBlog)
     },
 
 

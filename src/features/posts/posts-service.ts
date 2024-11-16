@@ -7,7 +7,7 @@ import {PostInputModel, PostViewModel} from "../../models/postsModels";
 import {mapToOut} from "../../helpers/mapper";
 
 export const postsService = {
-
+//create new post
     async createPost(body: PostInputModel) {
         const {title, shortDescription, content, blogId} = body;
         const blog = await blogsRepository.getBlogById(blogId);

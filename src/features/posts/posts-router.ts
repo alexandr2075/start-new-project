@@ -34,7 +34,7 @@ postsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response
 //create new post
 postsRouter.post("/", authMiddleware, ...postValidator, sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const createdPost = await postsRepository.createPost(req.body)
+        const createdPost = await postsService.createPost(req.body)
         res.status(HTTP_STATUS.CREATED).send(createdPost)
     })
 
