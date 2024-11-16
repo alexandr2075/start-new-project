@@ -5,34 +5,9 @@ import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {PostViewModel} from "../../models/postsModels";
 import {BlogViewModel, BlogViewModelInDB} from "../../models/blogsModels";
-import {mapToOut} from "../../helpers/mapper";
 import {ObjectId} from "mongodb";
 
 export const blogsRepository = {
-    async getAllBlogs(query: QueryFilter): Promise<ResponseModel> {
-        const defaultValues = paginationQueriesBlogs(query)
-        const search = defaultValues.searchNameTerm
-            ? {name: {$regex: defaultValues.searchNameTerm, $options: 'i'}}
-            : {}
-
-        const items = await client.db(SETTINGS.DB_NAME)
-            .collection<BlogViewModel>('blogs').find(search)
-            .sort(defaultValues.sortBy, defaultValues.sortDirection)
-            .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
-            .limit(defaultValues.pageSize)
-            .toArray()
-        const totalCount = await client.db(SETTINGS.DB_NAME)
-            .collection<BlogViewModel>('blogs').countDocuments(search)
-
-        return {
-            pagesCount: Math.ceil(totalCount / defaultValues.pageSize),
-            page: defaultValues.pageNumber,
-            pageSize: defaultValues.pageSize,
-            totalCount,
-            items: mapToOut(items)
-        }
-
-    },
 
     async getAllPostsById(blogId: string, query: QueryFilter): Promise<ResponseModel> {
         const defaultValues = paginationQueriesBlogs(query)

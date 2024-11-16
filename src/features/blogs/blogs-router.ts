@@ -21,7 +21,7 @@ export const blogsRouter = express.Router();
 //get all blogs
 blogsRouter.get("/", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
     const queryFilter = req.query;
-    const result = await blogsService.getAllBlogs(queryFilter)
+    const result = await blogsQueryRepository.getAllBlogs(queryFilter)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
     } else {
