@@ -41,10 +41,13 @@ postsRouter.post("/", authMiddleware, ...postValidator, sendAccumulatedErrorsMid
 // update post by id
 postsRouter.put("/:id", authMiddleware, ...postValidator, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
     const result = await postsService.updatePostById(req.params.id, req.body)
+    console.log('result', result)
     if (result.status === HTTP_STATUS.BAD_REQUEST) {
         res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
+    } else if (result.status === HTTP_STATUS.NO_CONTENT) {
+        res.sendStatus(HTTP_STATUS.NO_CONTENT)
     } else {
-        res.status(HTTP_STATUS.NO_CONTENT)
+        res.sendStatus(500)
     }
 })
 

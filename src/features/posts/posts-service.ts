@@ -41,7 +41,7 @@ export const postsService = {
             }
         }
         return {
-            status: 204,
+            status: HTTP_STATUS.NO_CONTENT,
             data: (await postsRepository.updatePostById(id, updatedPost))
         }
     },
