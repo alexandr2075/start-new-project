@@ -22,7 +22,7 @@ export const blogsRepository = {
     },
 
     async updateBlodById(id: string, updatedBlog: BlogViewModel) {
-        const result = await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').updateOne({id: id}, {
+        const result = await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').updateOne({_id: new ObjectId(id)}, {
             $set: {
                 name: updatedBlog.name,
                 description: updatedBlog.description,
@@ -33,7 +33,7 @@ export const blogsRepository = {
     },
 
     async deleteBlogById(id: string): Promise<boolean> {
-        const result = await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').deleteOne({id: id})
+        const result = await client.db(SETTINGS.DB_NAME).collection<BlogViewModel>('blogs').deleteOne({_id: new ObjectId(id)})
         return result.deletedCount === 1
     },
 
