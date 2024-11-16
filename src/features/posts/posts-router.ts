@@ -46,6 +46,8 @@ postsRouter.put("/:id", authMiddleware, ...postValidator, sendAccumulatedErrorsM
         res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
     } else if (result.status === HTTP_STATUS.NO_CONTENT) {
         res.sendStatus(HTTP_STATUS.NO_CONTENT)
+    } else if (result.status === HTTP_STATUS.NOT_FOUND) {
+        res.sendStatus(HTTP_STATUS.NOT_FOUND)
     } else {
         res.sendStatus(500)
     }

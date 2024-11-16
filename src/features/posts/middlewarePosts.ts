@@ -1,10 +1,11 @@
-import {body} from "express-validator";
+import {body, param} from "express-validator";
 
 export const checkTitleMiddleware = body('title').isString().withMessage('not string').trim().isLength({
     min: 1,
     max: 30
 }).withMessage('more then 30 or 0')
 
+export const checkParamIdMiddleware = param('id').trim().isString().withMessage('not string')
 export const checkBlogIdMiddleware = body('blogId').trim().isString().withMessage('not string')
 
 export const checkShortDescriptionMiddleware = body('shortDescription').isString().withMessage('not string')

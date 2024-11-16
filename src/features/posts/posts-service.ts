@@ -5,7 +5,6 @@ import {usersRepository} from "../users/users-db-repository";
 import {postsRepository} from "./posts-db-repository";
 import {PostInputModel, PostViewModel} from "../../models/postsModels";
 import {mapToOut} from "../../helpers/mapper";
-import {BlogViewModel} from "../../models/blogsModels";
 import {ObjectId} from "mongodb";
 
 export const postsService = {
@@ -29,8 +28,19 @@ export const postsService = {
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
-        const blog = await client.db(SETTINGS.DB_NAME)
-            .collection<BlogViewModel>('blogs').findOne({_id: new ObjectId(updatedPost.blogId)});
+        if (!ObjectId.isValid(id)) {
+            return {
+                status: HTTP_STATUS.NOT_FOUND
+            }
+        }
+        const post = await postsRepository.getPostById(id)
+        console.log('post', post)
+        if (!post) {
+            return {
+                status: HTTP_STATUS.NOT_FOUND
+            }
+        }
+        const blog = await blogsRepository.getBlogById(updatedPost.blogId)
         if (!blog) {
             return {
                 status: HTTP_STATUS.BAD_REQUEST,
