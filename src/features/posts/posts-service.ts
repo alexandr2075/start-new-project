@@ -12,7 +12,15 @@ export const postsService = {
     async createPost(body: PostInputModel) {
         const {title, shortDescription, content, blogId} = body;
         const blog = await blogsRepository.getBlogById(blogId);
-        if (!blog) return null
+        if (!blog) {
+            return {
+                status: HTTP_STATUS.BAD_REQUEST,
+                errors: [{
+                    message: "blogId not found",
+                    field: "blogId"
+                }]
+            }
+        }
 
         const newPost = {
             title,
@@ -23,8 +31,15 @@ export const postsService = {
             createdAt: new Date().toISOString(),
         }
         const createdUser = await postsRepository.createPost(newPost)
-        if (!createdUser) return null
-        return mapToOut(createdUser)
+        if (!createdUser) {
+            return {
+                status: HTTP_STATUS.NOT_FOUND,
+            }
+        }
+        return {
+            status: HTTP_STATUS.CREATED,
+            data: mapToOut(createdUser)
+        }
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {

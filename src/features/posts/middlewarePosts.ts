@@ -1,4 +1,5 @@
 import {body, param} from "express-validator";
+import {ObjectId} from "mongodb";
 
 export const checkTitleMiddleware = body('title').isString().withMessage('not string').trim().isLength({
     min: 1,
@@ -6,7 +7,16 @@ export const checkTitleMiddleware = body('title').isString().withMessage('not st
 }).withMessage('more then 30 or 0')
 
 export const checkParamIdMiddleware = param('id').trim().isString().withMessage('not string')
-export const checkBlogIdMiddleware = body('blogId').trim().isString().withMessage('not string')
+export const checkBlogIdMiddleware = body('blogId')
+    .trim()
+    .isString()
+    .withMessage('blogId must be a string')
+    .custom(value => {
+        if (!ObjectId.isValid(value)) {
+            throw new Error('blogId is not a valid ObjectId');
+        }
+        return true;
+    });
 
 export const checkShortDescriptionMiddleware = body('shortDescription').isString().withMessage('not string')
     .trim().isLength({min: 1, max: 100}).withMessage('more then 100 or 0')

@@ -34,8 +34,17 @@ postsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response
 //create new post
 postsRouter.post("/", authMiddleware, ...postValidator, sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const createdPost = await postsService.createPost(req.body)
-        res.status(HTTP_STATUS.CREATED).send(createdPost)
+        const result = await postsService.createPost(req.body)
+        if (result.status === HTTP_STATUS.BAD_REQUEST) {
+            res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
+        } else if (result.status === HTTP_STATUS.CREATED) {
+            res.status(HTTP_STATUS.CREATED).send(result.data)
+        } else if (result.status === HTTP_STATUS.NOT_FOUND) {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND)
+        } else {
+            res.sendStatus(500)
+        }
+
     })
 
 // update post by id
