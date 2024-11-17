@@ -6,7 +6,7 @@ import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
 import {PostViewModel} from "../../models/postsModels";
-import {mapToOut} from "../../helpers/mapper";
+import {mapArrToOut, mapToOut} from "../../helpers/mapper";
 import {ObjectId} from "mongodb";
 
 export const postsQueryRepository = {
@@ -62,15 +62,7 @@ export const postsQueryRepository = {
             .limit(defaultValues.pageSize)
             .toArray()
 
-        const itemsWithId = items.map((com) => {
-            const {_id, content, commentatorInfo, createdAt} = com
-            return {
-                id: _id.toString(),
-                content,
-                commentatorInfo,
-                createdAt
-            }
-        })
+        const itemsWithId = mapArrToOut(items)
         const totalCount = await client.db(SETTINGS.DB_NAME)
             .collection<CommentViewModel>('comments').countDocuments()
 

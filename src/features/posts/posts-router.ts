@@ -87,7 +87,7 @@ postsRouter.post("/:postId/comments", accessTokenGuard, checkContentCommentMiddl
     })
 
 //get all comments for specified post
-postsRouter.get("/postId/comments", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
+postsRouter.get("/:postId/comments", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
     const allComments = await postsQueryRepository.getAllCommentsForSpecifiedPost(req.query)
     res.status(HTTP_STATUS.OK).send(allComments)
 })

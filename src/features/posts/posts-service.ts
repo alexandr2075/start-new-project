@@ -86,12 +86,14 @@ export const postsService = {
         const newComment = {
             content,
             commentatorInfo: {
-                userId: userId,
+                userId: userId.id,
                 userLogin: user.login,
             },
             createdAt: new Date().toISOString(),
         }
-        return await postsRepository.createCommentByPostId(newComment);
+        const result = await postsRepository.createCommentByPostId(newComment);
+        if (!result) return null
+        return mapToOut(result)
     },
 
 }
