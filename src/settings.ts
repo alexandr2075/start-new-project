@@ -18,6 +18,7 @@ export const SETTINGS = {
         BLOGS: 'blogs',
         POSTS: 'posts',
         USERS: 'users',
+        COMMENTS: 'comments',
     },
     ADMIN_AUTH: process.env.ADMIN_AUTH || '',
     MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017',
