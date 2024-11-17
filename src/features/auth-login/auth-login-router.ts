@@ -21,7 +21,7 @@ authLoginRouter.post("/",
         if (token) {
             res.status(HTTP_STATUS.OK).send({accessToken: token})
         } else {
-            res.send(HTTP_STATUS.UNAUTHORIZED)
+            res.sendStatus(HTTP_STATUS.UNAUTHORIZED)
         }
     })
 
