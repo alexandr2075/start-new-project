@@ -1,7 +1,7 @@
 import express from "express";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {postsRepository} from "./posts-db-repository";
-import {checkContentCommentMiddleware, postValidator} from "./middlewarePosts";
+import {checkContentCommentMiddleware, checkPostIdMiddleware, postValidator} from "./middlewarePosts";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
 import {Request, Response} from 'express';
 import {HTTP_STATUS} from "../../settings";
@@ -73,7 +73,11 @@ postsRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) =
 })
 
 //create new comment by postId
-postsRouter.post("/:postId/comments", accessTokenGuard, checkContentCommentMiddleware, sendAccumulatedErrorsMiddleware,
+postsRouter.post("/:postId/comments",
+    accessTokenGuard,
+    checkPostIdMiddleware,
+    checkContentCommentMiddleware,
+    sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
         const postId = req.params.postId
         const content = req.body.content
@@ -82,8 +86,15 @@ postsRouter.post("/:postId/comments", accessTokenGuard, checkContentCommentMiddl
             res.send(HTTP_STATUS.UNAUTHORIZED)
             return
         }
-        const createdCommentByPostId = await postsService.createCommentByPostId(postId, content, userId)
-        res.status(HTTP_STATUS.CREATED).send(createdCommentByPostId)
+        const result = await postsService.createCommentByPostId(postId, content, userId)
+        console.log('createdCommentByPostId', result)
+        if (result.status === HTTP_STATUS.NOT_FOUND) {
+            res.send(HTTP_STATUS.BAD_REQUEST)
+        } else if (result.status === HTTP_STATUS.OK) {
+            res.status(HTTP_STATUS.CREATED).send(result.data)
+        } else {
+            res.sendStatus(500)
+        }
     })
 
 //get all comments for specified post

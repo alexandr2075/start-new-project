@@ -18,6 +18,18 @@ export const checkBlogIdMiddleware = body('blogId')
         return true;
     });
 
+
+export const checkPostIdMiddleware = param('postId')
+    .trim()
+    .isString()
+    .withMessage('postId must be a string')
+    .custom(value => {
+        if (!ObjectId.isValid(value)) {
+            throw new Error('postId is not a valid ObjectId');
+        }
+        return true;
+    });
+
 export const checkShortDescriptionMiddleware = body('shortDescription').isString().withMessage('not string')
     .trim().isLength({min: 1, max: 100}).withMessage('more then 100 or 0')
 

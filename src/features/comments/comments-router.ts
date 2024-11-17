@@ -42,7 +42,8 @@ commentsRouter.delete("/:commentId",
     checkCommentIdFromParamMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const isDeleted = await commentsService.deleteCommentByCommentId(req.params.id, req.user!)
+        console.log('req', req.params)
+        const isDeleted = await commentsService.deleteCommentByCommentId(req.params.commentId, req.user!)
         if (isDeleted) {
             res.send(HTTP_STATUS.NO_CONTENT)
         } else {

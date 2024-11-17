@@ -78,10 +78,21 @@ export const postsService = {
 
     //create new comment by postId
     async createCommentByPostId(postId: string, content: string, userId: any) {
+
         const user = await usersRepository.getUserById(userId);
+        console.log('us', user)
         const post = await postsRepository.getPostById(postId);
-        if (!user) return null
-        if (!post) return null
+        console.log('po', post)
+        if (!user) {
+            return {
+                status: HTTP_STATUS.NOT_FOUND,
+            }
+        }
+        if (!post) {
+            return {
+                status: HTTP_STATUS.NOT_FOUND,
+            }
+        }
 
         const newComment = {
             content,
@@ -92,8 +103,16 @@ export const postsService = {
             createdAt: new Date().toISOString(),
         }
         const result = await postsRepository.createCommentByPostId(newComment);
-        if (!result) return null
-        return mapToOut(result)
+        console.log('post', result)
+        if (!result) {
+            return {
+                status: HTTP_STATUS.NOT_FOUND,
+            }
+        }
+        return {
+            status: HTTP_STATUS.OK,
+            data: mapToOut(result)
+        }
     },
 
 }

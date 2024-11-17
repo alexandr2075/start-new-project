@@ -18,8 +18,9 @@ export const commentsService = {
 
     async deleteCommentByCommentId(commentId: string, userId: IdType) {
         const comment = await commentsRepository.getCommentById(commentId);
+        console.log('comment', comment);
         if (!comment) return null;
-        if (comment.commentatorInfo.userId === userId) {
+        if (comment.commentatorInfo.userId !== userId) {
             return {
                 status: HTTP_STATUS.FORBIDDEN
             }
