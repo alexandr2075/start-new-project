@@ -31,5 +31,6 @@ export const blogsService = {
 
     async deleteBlogById(id: string): Promise<boolean> {
         return await blogsRepository.deleteBlogById(id)
-    }
+    },
+
 }

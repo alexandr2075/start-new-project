@@ -106,7 +106,15 @@ blogsRouter.post("/:blogId/posts", authMiddleware,
             content: dataBody.content,
             blogId,
         }
-        const createdPost = await postsService.createPost(dataForPost)
-        res.status(HTTP_STATUS.CREATED).send(createdPost)
+        const result = await postsService.createPost(dataForPost)
+        if (result.status === HTTP_STATUS.BAD_REQUEST) {
+            res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
+        } else if (result.status === HTTP_STATUS.CREATED) {
+            res.status(HTTP_STATUS.CREATED).send(result.data)
+        } else if (result.status === HTTP_STATUS.NOT_FOUND) {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND)
+        } else {
+            res.sendStatus(500)
+        }
 
     })

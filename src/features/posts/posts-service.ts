@@ -30,15 +30,15 @@ export const postsService = {
             blogName: blog.name,
             createdAt: new Date().toISOString(),
         }
-        const createdUser = await postsRepository.createPost(newPost)
-        if (!createdUser) {
+        const createdPost = await postsRepository.createPost(newPost)
+        if (!createdPost) {
             return {
                 status: HTTP_STATUS.NOT_FOUND,
             }
         }
         return {
             status: HTTP_STATUS.CREATED,
-            data: mapToOut(createdUser)
+            data: mapToOut(createdPost)
         }
     },
 
