@@ -4,10 +4,10 @@ import {commentsRepository} from "./comments-db-repository";
 
 export const commentsService = {
 
-    async updateCommentByCommentId(commentId: string, content: string, userId: IdType) {
+    async updateCommentByCommentId(commentId: string, content: string, user: IdType) {
         const comment = await commentsRepository.getCommentById(commentId);
         if (!comment) return null;
-        if (comment.commentatorInfo.userId === userId) {
+        if (comment.commentatorInfo.userId !== user.id) {
             return {
                 status: HTTP_STATUS.FORBIDDEN
             }
@@ -16,11 +16,11 @@ export const commentsService = {
 
     },
 
-    async deleteCommentByCommentId(commentId: string, userId: IdType) {
+    async deleteCommentByCommentId(commentId: string, user: IdType) {
         const comment = await commentsRepository.getCommentById(commentId);
         console.log('comment', comment);
         if (!comment) return null;
-        if (comment.commentatorInfo.userId !== userId) {
+        if (comment.commentatorInfo.userId !== user.id) {
             return {
                 status: HTTP_STATUS.FORBIDDEN
             }

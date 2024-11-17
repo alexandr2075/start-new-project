@@ -1,3 +1,5 @@
+import {ObjectId} from "mongodb";
+
 export const mapArrToOut = <T extends { _id: any }>(arr: Array<T>) => {
     return arr.map(item => {
         const {_id: id, ...itemWithoutId} = item
@@ -5,7 +7,7 @@ export const mapArrToOut = <T extends { _id: any }>(arr: Array<T>) => {
     });
 };
 
-export const mapToOut = <T extends { _id: any }>(obj: T) => {
-    const {_id: id, ...itemWithoutId} = obj
+export const mapToOut = <T extends any>(obj: T & { _id: ObjectId }) => {
+    const {_id: id, postId, ...itemWithoutId} = obj as any
     return {id, ...itemWithoutId};
 };

@@ -1,8 +1,8 @@
-import {SortDirection} from "mongodb";
+import {ObjectId, SortDirection} from "mongodb";
 import {IdType} from "../types/id";
 
 export type CommentatorInfo = {
-    userId: IdType
+    userId: string
     userLogin: string
 }
 
@@ -10,13 +10,15 @@ export type CommentInputModel = {
     content: string
     commentatorInfo: CommentatorInfo
     createdAt: string
+    postId: string
 }
 
 export type CommentViewModelInDB = {
-    _id: string
+    _id: ObjectId
     content: string
     commentatorInfo: CommentatorInfo
     createdAt: string
+    postId: string
 }
 
 export type CommentViewModel = {

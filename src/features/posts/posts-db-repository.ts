@@ -1,6 +1,6 @@
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
-import {CommentInputModel, CommentViewModel} from "../../models/commentModel";
+import {CommentInputModel, CommentViewModel, CommentViewModelInDB} from "../../models/commentModel";
 import {PostViewModel} from "../../models/postsModels";
 import {ObjectId} from "mongodb";
 
@@ -35,7 +35,7 @@ export const postsRepository = {
         const insertAcknow = await client.db(SETTINGS.DB_NAME)
             .collection<CommentInputModel>('comments').insertOne(newComment);
         return await client.db(SETTINGS.DB_NAME)
-            .collection<CommentViewModel>('comments').findOne({_id: new Object(insertAcknow.insertedId)})
+            .collection<CommentViewModelInDB>('comments').findOne({_id: new Object(insertAcknow.insertedId)})
 
     },
 }

@@ -43,13 +43,7 @@ export const postsService = {
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
-        if (!ObjectId.isValid(id)) {
-            return {
-                status: HTTP_STATUS.NOT_FOUND
-            }
-        }
         const post = await postsRepository.getPostById(id)
-        console.log('post', post)
         if (!post) {
             return {
                 status: HTTP_STATUS.NOT_FOUND
@@ -77,7 +71,7 @@ export const postsService = {
     },
 
     //create new comment by postId
-    async createCommentByPostId(postId: string, content: string, userId: any) {
+    async createCommentByPostId(postId: string, content: string, userId: string) {
 
         const user = await usersRepository.getUserById(userId);
         console.log('us', user)
@@ -97,10 +91,11 @@ export const postsService = {
         const newComment = {
             content,
             commentatorInfo: {
-                userId: userId.id,
+                userId: userId,
                 userLogin: user.login,
             },
             createdAt: new Date().toISOString(),
+            postId
         }
         const result = await postsRepository.createCommentByPostId(newComment);
         console.log('post', result)

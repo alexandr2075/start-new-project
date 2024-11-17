@@ -6,7 +6,6 @@ export const checkTitleMiddleware = body('title').isString().withMessage('not st
     max: 30
 }).withMessage('more then 30 or 0')
 
-export const checkParamIdMiddleware = param('id').trim().isString().withMessage('not string')
 export const checkBlogIdMiddleware = body('blogId')
     .trim()
     .isString()
@@ -19,13 +18,13 @@ export const checkBlogIdMiddleware = body('blogId')
     });
 
 
-export const checkPostIdMiddleware = param('postId')
+export const checkIdParamMiddleware = param('id')
     .trim()
     .isString()
-    .withMessage('postId must be a string')
+    .withMessage('id must be a string')
     .custom(value => {
         if (!ObjectId.isValid(value)) {
-            throw new Error('postId is not a valid ObjectId');
+            throw new Error('id is not a valid ObjectId');
         }
         return true;
     });

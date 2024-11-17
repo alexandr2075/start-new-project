@@ -1,7 +1,7 @@
 import express from "express";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {postsRepository} from "./posts-db-repository";
-import {checkContentCommentMiddleware, checkPostIdMiddleware, postValidator} from "./middlewarePosts";
+import {checkContentCommentMiddleware, checkIdParamMiddleware, postValidator} from "./middlewarePosts";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
 import {Request, Response} from 'express';
 import {HTTP_STATUS} from "../../settings";
@@ -48,19 +48,24 @@ postsRouter.post("/", authMiddleware, ...postValidator, sendAccumulatedErrorsMid
     })
 
 // update post by id
-postsRouter.put("/:id", authMiddleware, ...postValidator, sendAccumulatedErrorsMiddleware, async (req: Request, res: Response) => {
-    const result = await postsService.updatePostById(req.params.id, req.body)
-    console.log('result', result)
-    if (result.status === HTTP_STATUS.BAD_REQUEST) {
-        res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
-    } else if (result.status === HTTP_STATUS.NO_CONTENT) {
-        res.sendStatus(HTTP_STATUS.NO_CONTENT)
-    } else if (result.status === HTTP_STATUS.NOT_FOUND) {
-        res.sendStatus(HTTP_STATUS.NOT_FOUND)
-    } else {
-        res.sendStatus(500)
-    }
-})
+postsRouter.put("/:id",
+    authMiddleware,
+    checkIdParamMiddleware,
+    ...postValidator,
+    sendAccumulatedErrorsMiddleware,
+    async (req: Request, res: Response) => {
+        const result = await postsService.updatePostById(req.params.id, req.body)
+
+        if (result.status === HTTP_STATUS.BAD_REQUEST) {
+            res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
+        } else if (result.status === HTTP_STATUS.NO_CONTENT) {
+            res.sendStatus(HTTP_STATUS.NO_CONTENT)
+        } else if (result.status === HTTP_STATUS.NOT_FOUND) {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND)
+        } else {
+            res.sendStatus(500)
+        }
+    })
 
 // delete post by id
 postsRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
@@ -73,20 +78,21 @@ postsRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) =
 })
 
 //create new comment by postId
-postsRouter.post("/:postId/comments",
+postsRouter.post("/:id/comments",
     accessTokenGuard,
-    checkPostIdMiddleware,
+    checkIdParamMiddleware,
     checkContentCommentMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const postId = req.params.postId
+        const postId = req.params.id
         const content = req.body.content
-        const userId = req.user
-        if (!userId) {
+        const user = req.user
+        if (!user) {
             res.send(HTTP_STATUS.UNAUTHORIZED)
             return
         }
-        const result = await postsService.createCommentByPostId(postId, content, userId)
+        const result = await postsService
+            .createCommentByPostId(postId, content, user.id)
         console.log('createdCommentByPostId', result)
         if (result.status === HTTP_STATUS.NOT_FOUND) {
             res.send(HTTP_STATUS.BAD_REQUEST)
@@ -98,7 +104,7 @@ postsRouter.post("/:postId/comments",
     })
 
 //get all comments for specified post
-postsRouter.get("/:postId/comments", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
+postsRouter.get("/:id/comments", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
     const allComments = await postsQueryRepository.getAllCommentsForSpecifiedPost(req.query)
     res.status(HTTP_STATUS.OK).send(allComments)
 })
