@@ -16,6 +16,7 @@ authLoginRouter.post("/",
     checkPasswordMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
+        console.log('body', req.body)
         const token = await authLoginService.authLoginUser(req.body)
 
         if (token) {
@@ -36,6 +37,5 @@ authLoginRouter.get(SETTINGS.PATH.AUTH_ME,
             return
         }
         const me = await usersQueryRepository.findById(userId);
-
         res.status(200).send(me);
     })
