@@ -25,9 +25,7 @@ export const checkIsStringMiddleware = body('loginOrEmail')
     .isLength({min: 3, max: 100})
     .withMessage('more than 100 or less than 3')
 
-export const checkIdMiddleware = param('id')
-    .custom((value) => /^[0-9a-fA-F]{24}$/.test(value))
-    .withMessage('Invalid ObjectId format');
+export const checkIsValidConfCodeMiddleware = body('code').isUUID().withMessage('Invalid UUID format')
 
 export const userValidator = [
     checkLoginMiddleware,

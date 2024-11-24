@@ -74,9 +74,7 @@ export const postsService = {
     async createCommentByPostId(postId: string, content: string, userId: string) {
 
         const user = await usersRepository.getUserById(userId);
-        console.log('us', user)
         const post = await postsRepository.getPostById(postId);
-        console.log('po', post)
         if (!user) {
             return {
                 status: HTTP_STATUS.NOT_FOUND,
@@ -98,7 +96,6 @@ export const postsService = {
             postId
         }
         const result = await postsRepository.createCommentByPostId(newComment);
-        console.log('post', result)
         if (!result) {
             return {
                 status: HTTP_STATUS.NOT_FOUND,

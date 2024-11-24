@@ -38,7 +38,6 @@ describe('Course', () => {
         }
 
         const createdBlog = await blogsRepository.createBlog(newBlog)
-        console.log(createdBlog)
         await request(app)
             .post(SETTINGS.PATH.POSTS)
             .set({authorization: 'Basic ' + codedAuth})

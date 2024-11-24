@@ -1,12 +1,12 @@
 import {client} from "../../db/dbMongo";
 import {SETTINGS} from "../../settings";
 import {paginationQueriesComments} from "../../helpers/pagination-queries-comments";
-import {CommentViewModel, QueryCommentsModel} from "../../models/commentModel";
+import {CommentViewModel, CommentViewModelInDB, QueryCommentsModel} from "../../models/commentModel";
 import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
 import {PostViewModel} from "../../models/postsModels";
-import {mapArrToOut, mapToOut} from "../../helpers/mapper";
+import {mapArrToOut, mapArrToOutWithoutPostId, mapToOut} from "../../helpers/mapper";
 import {ObjectId} from "mongodb";
 
 export const postsQueryRepository = {
@@ -52,19 +52,19 @@ export const postsQueryRepository = {
         return mapToOut(post)
     },
 
-    async getAllCommentsForSpecifiedPost(query: QueryCommentsModel) {
+    async getAllCommentsForSpecifiedPost(query: QueryCommentsModel, postId: string): Promise<ResponseModel> {
         const defaultValues = paginationQueriesComments(query)
 
         const items = await client.db(SETTINGS.DB_NAME)
-            .collection<CommentViewModel>('comments').find()
+            .collection<CommentViewModel>('comments').find({postId})
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
             .toArray()
 
-        const itemsWithId = mapArrToOut(items)
+        const itemsWithId = mapArrToOutWithoutPostId(items)
         const totalCount = await client.db(SETTINGS.DB_NAME)
-            .collection<CommentViewModel>('comments').countDocuments()
+            .collection<CommentViewModel>('comments').countDocuments({postId})
 
         return {
             pagesCount: Math.ceil(totalCount / defaultValues.pageSize),

@@ -15,10 +15,6 @@ export const commentsRouter = express.Router();
 //get comments by id
 commentsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response) => {
     const comment = await commentsQueryRepository.getCommentById(req.params.id)
-
-    console.log(req.params, " params")
-    console.log(comment)
-    //console.log(await client.db(SETTINGS.DB_NAME).collection<CommentViewModelInDB>('comments').find().toArray(), " all coments")
     if (comment) {
         res.status(HTTP_STATUS.OK).send(comment)
     } else {
@@ -27,33 +23,42 @@ commentsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Respo
 })
 
 // update comment by commentId
-commentsRouter.put("/:commentId",
+commentsRouter.put("/:id",
     accessTokenGuard,
     checkCommentIdFromParamMiddleware,
     checkContentMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const isUpdatedPost = await commentsService.updateCommentByCommentId(req.params.id, req.body, req.user!)
+        const result = await commentsService.updateCommentByCommentId(req.params.id, req.body.content, req.user!)
 
-        if (isUpdatedPost) {
+        if (result && result.status === HTTP_STATUS.FORBIDDEN) {
+            res.sendStatus(HTTP_STATUS.FORBIDDEN)
+        } else if (result && result.status === HTTP_STATUS.NO_CONTENT) {
             res.sendStatus(HTTP_STATUS.NO_CONTENT)
-        } else {
+        } else if (result && result.status === HTTP_STATUS.NOT_FOUND) {
             res.sendStatus(HTTP_STATUS.NOT_FOUND)
+        } else {
+            res.sendStatus(500)
         }
     })
 
 // delete comment by commentId
-commentsRouter.delete("/:commentId",
+commentsRouter.delete("/:id",
     accessTokenGuard,
     checkCommentIdFromParamMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        console.log('req', req.params)
-        const isDeleted = await commentsService.deleteCommentByCommentId(req.params.commentId, req.user!)
-        if (isDeleted) {
-            res.send(HTTP_STATUS.NO_CONTENT)
-        } else {
+        const result = await commentsService.deleteCommentByCommentId(req.params.id, req.user!)
+
+        if (result && result.status === HTTP_STATUS.FORBIDDEN) {
+            res.sendStatus(HTTP_STATUS.FORBIDDEN)
+        } else if (result && result.status === HTTP_STATUS.NO_CONTENT) {
+            res.sendStatus(HTTP_STATUS.NO_CONTENT)
+        } else if (result && result.status === HTTP_STATUS.NOT_FOUND) {
             res.sendStatus(HTTP_STATUS.NOT_FOUND)
+        } else {
+            res.sendStatus(500)
         }
+
     })
 

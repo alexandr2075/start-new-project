@@ -13,7 +13,7 @@ export const checkWebsiteUrlMiddleware = body('websiteUrl').isString().withMessa
     .trim().isURL().withMessage('not url')
     .isLength({min: 1, max: 100}).withMessage('more then 100 or 0');
 
-export const checkBlogIdFromParamMiddleware = param('blogId').trim().isString().withMessage('not string').custom(async value => {
+export const checkIdFromParamMiddleware = param('id').trim().isString().withMessage('not string').custom(async value => {
     const blogById = await blogsRepository.getBlogById(value);
     if (!blogById) {
         throw new Error('blog id not found');

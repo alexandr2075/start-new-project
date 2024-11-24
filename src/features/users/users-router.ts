@@ -31,7 +31,7 @@ usersRouter.post("/", authMiddleware, ...userValidator, sendAccumulatedErrorsMid
             res.send({'errorsMessages': result.errors})
             return
         } else if (result.status === HTTP_STATUS.OK) {
-            const createdUser = await usersQueryRepository.getUserByObjectId(result.data!.insertedId)
+            const createdUser = await usersQueryRepository.getUserByObjectId(result.data!._id)
             res.status(HTTP_STATUS.CREATED).send(createdUser)
             return
         } else {

@@ -10,8 +10,7 @@ export const SETTINGS = {
         POSTS: '/posts',
         USERS: '/users',
         COMMENTS: '/comments',
-        AUTH_LOGIN: '/auth/login',
-        AUTH_ME: '/auth/me',
+        AUTH: '/auth',
         TESTING_ALL_DATA: '/testing/all-data'
     },
     NAME_COLLECTIONS: {
@@ -21,10 +20,12 @@ export const SETTINGS = {
         COMMENTS: 'comments',
     },
     ADMIN_AUTH: process.env.ADMIN_AUTH || '',
-    MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017',
+    MONGO_URL: '123',  //process.env.MONGO_URL || 'mongodb://0.0.0.0:27017',
     DB_NAME: process.env.DB_NAME || '',
     EXP_TIME: process.env.EXP_TIME || '',
     SECRET_KEY: process.env.SECRET_KEY || '',
+    SENDER_EMAIL: process.env.SENDER_EMAIL || '',
+    SENDER_PASSWORD: process.env.SENDER_PASSWORD || '',
 }
 
 export enum HTTP_STATUS {

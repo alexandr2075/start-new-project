@@ -1,12 +1,14 @@
-import {SortDirection} from "mongodb";
+import {ObjectId, SortDirection} from "mongodb";
+import {DateArg} from "date-fns";
+import {UUID} from "node:crypto";
 
 export type QueryUserModel = {
     sortBy: string,
     sortDirection: SortDirection,
     pageNumber: number;
     pageSize: number;
-    searchLoginTerm: string | null;
-    searchEmailTerm: string | null;
+    searchLoginTerm?: string | null;
+    searchEmailTerm?: string | null;
 }
 
 export type UserViewModel = {
@@ -20,7 +22,25 @@ export type UserInputDBModel = {
     login: string;
     email: string;
     password: string;
-    createdAt: string;
+    createdAt: Date;
+    emailConfirmation: {
+        confirmationCode: UUID,
+        expirationDate?: Date,
+        isConfirmed: 'confirmed' | 'unconfirmed'
+    }
+}
+
+export type UserDBModel = {
+    _id: ObjectId;
+    login: string;
+    email: string;
+    password: string;
+    createdAt: Date;
+    emailConfirmation: {
+        confirmationCode: UUID,
+        expirationDate?: Date,
+        isConfirmed: 'confirmed' | 'unconfirmed'
+    }
 }
 
 export type UsersViewModel = {

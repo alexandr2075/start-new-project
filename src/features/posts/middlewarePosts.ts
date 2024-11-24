@@ -1,5 +1,9 @@
 import {body, param} from "express-validator";
 import {ObjectId} from "mongodb";
+import {blogsRepository} from "../blogs/blogs-db-repository";
+import {HTTP_STATUS} from "../../settings";
+import {postsService} from "./posts-service";
+import {postsQueryRepository} from "./posts-query-repository";
 
 export const checkTitleMiddleware = body('title').isString().withMessage('not string').trim().isLength({
     min: 1,
@@ -10,11 +14,14 @@ export const checkBlogIdMiddleware = body('blogId')
     .trim()
     .isString()
     .withMessage('blogId must be a string')
-    .custom(value => {
+    .custom(async (value) => {
         if (!ObjectId.isValid(value)) {
             throw new Error('blogId is not a valid ObjectId');
         }
-        return true;
+        const blog = await blogsRepository.getBlogById(value);
+        if (!blog) {
+            throw new Error("blogId not found");
+        }
     });
 
 
@@ -22,11 +29,14 @@ export const checkIdParamMiddleware = param('id')
     .trim()
     .isString()
     .withMessage('id must be a string')
-    .custom(value => {
+    .custom(async (value) => {
         if (!ObjectId.isValid(value)) {
             throw new Error('id is not a valid ObjectId');
         }
-        return true;
+        const post = await postsQueryRepository.getPostById(value);
+        if (!post) {
+            throw new Error("postId not found");
+        }
     });
 
 export const checkShortDescriptionMiddleware = body('shortDescription').isString().withMessage('not string')

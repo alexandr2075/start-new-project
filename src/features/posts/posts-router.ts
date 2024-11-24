@@ -1,12 +1,11 @@
-import express from "express";
+import express, {Request, Response} from "express";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {postsRepository} from "./posts-db-repository";
-import {checkContentCommentMiddleware, checkIdParamMiddleware, postValidator} from "./middlewarePosts";
+import {checkContentCommentMiddleware, postValidator} from "./middlewarePosts";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
-import {Request, Response} from 'express';
 import {HTTP_STATUS} from "../../settings";
 import {ResponseModel} from "../../models/responseModel";
-import {ReqWithParams, ReqWithQuery} from "../../types/requestPaginationFilter";
+import {ReqWithParams, ReqWithParamsAndQuery, ReqWithQuery} from "../../types/requestPaginationFilter";
 import {QueryFilter} from "../../models/queryModel";
 import {postsService} from "./posts-service";
 import {accessTokenGuard} from "../auth-login/guards/access.token.guard";
@@ -23,9 +22,9 @@ postsRouter.get("/", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
 
 //get post by id
 postsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response) => {
-    const findedPost = await postsQueryRepository.getPostById(req.params.id)
-    if (findedPost) {
-        res.status(HTTP_STATUS.OK).send(findedPost)
+    const foundPost = await postsQueryRepository.getPostById(req.params.id)
+    if (foundPost) {
+        res.status(HTTP_STATUS.OK).send(foundPost)
     } else {
         res.send(HTTP_STATUS.NOT_FOUND)
     }
@@ -50,7 +49,7 @@ postsRouter.post("/", authMiddleware, ...postValidator, sendAccumulatedErrorsMid
 // update post by id
 postsRouter.put("/:id",
     authMiddleware,
-    checkIdParamMiddleware,
+    // checkIdParamMiddleware,
     ...postValidator,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
@@ -80,7 +79,7 @@ postsRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) =
 //create new comment by postId
 postsRouter.post("/:id/comments",
     accessTokenGuard,
-    checkIdParamMiddleware,
+    // checkIdParamMiddleware,
     checkContentCommentMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
@@ -93,9 +92,8 @@ postsRouter.post("/:id/comments",
         }
         const result = await postsService
             .createCommentByPostId(postId, content, user.id)
-        console.log('createdCommentByPostId', result)
         if (result.status === HTTP_STATUS.NOT_FOUND) {
-            res.send(HTTP_STATUS.BAD_REQUEST)
+            res.send(HTTP_STATUS.NOT_FOUND)
         } else if (result.status === HTTP_STATUS.OK) {
             res.status(HTTP_STATUS.CREATED).send(result.data)
         } else {
@@ -104,7 +102,15 @@ postsRouter.post("/:id/comments",
     })
 
 //get all comments for specified post
-postsRouter.get("/:id/comments", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
-    const allComments = await postsQueryRepository.getAllCommentsForSpecifiedPost(req.query)
-    res.status(HTTP_STATUS.OK).send(allComments)
-})
+postsRouter.get("/:id/comments",
+    // checkIdParamMiddleware,
+    sendAccumulatedErrorsMiddleware,
+    async (req: ReqWithParamsAndQuery<{ id: string }, QueryFilter>, res: Response) => {
+        const post = await postsRepository.getPostById(req.params.id)
+        if (!post) {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND)
+            return
+        }
+        const allComments = await postsQueryRepository.getAllCommentsForSpecifiedPost(req.query, req.params.id)
+        res.status(HTTP_STATUS.OK).send(allComments)
+    })

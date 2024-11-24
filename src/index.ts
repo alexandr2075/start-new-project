@@ -1,9 +1,9 @@
 import {app} from './app'
 import {SETTINGS} from './settings'
-import {runDb} from "./db/dbMongo";
+import {db} from "./db/db";
 
 const createApp = async () => {
-    await runDb()
+    // await db.run(SETTINGS.MONGO_URL)
 
     app.listen(SETTINGS.PORT, () => {
         console.log('...server started in port ' + SETTINGS.PORT)
@@ -11,3 +11,4 @@ const createApp = async () => {
 }
 
 createApp()
+

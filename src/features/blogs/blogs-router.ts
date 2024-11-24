@@ -1,5 +1,5 @@
 import express, {Request, Response} from "express";
-import {blogValidator} from "./middlewaresBlogs";
+import {blogValidator, checkIdFromParamMiddleware} from "./middlewaresBlogs";
 import {authMiddleware} from "../../commonMiddleware/authMiddleware";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
 import {HTTP_STATUS} from "../../settings";
@@ -19,21 +19,24 @@ blogsRouter.get("/", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
     } else {
-        res.send(HTTP_STATUS.NOT_FOUND)
+        res.sendStatus(HTTP_STATUS.NOT_FOUND)
     }
 
 })
 
 //get blog by id
-blogsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response) => {
-    const blogId = req.params.id
-    const findedBlog = await blogsService.getBlogById(blogId)
-    if (findedBlog) {
-        res.status(HTTP_STATUS.OK).send(findedBlog)
-    } else {
-        res.send(HTTP_STATUS.NOT_FOUND)
-    }
-})
+blogsRouter.get("/:id",
+    checkIdFromParamMiddleware,
+    sendAccumulatedErrorsMiddleware,
+    async (req: ReqWithParams<{ id: string }>, res: Response) => {
+        const blogId = req.params.id
+        const findedBlog = await blogsService.getBlogById(blogId)
+        if (findedBlog) {
+            res.status(HTTP_STATUS.OK).send(findedBlog)
+        } else {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND)
+        }
+    })
 
 //create new blog
 blogsRouter.post("/", authMiddleware, ...blogValidator, sendAccumulatedErrorsMiddleware,
@@ -73,7 +76,7 @@ blogsRouter.get("/:blogId/posts", async (req: ReqWithParamsAndQuery<{
     const queryFilter = req.query;
     const blog = await blogsQueryRepository.getBlogById(blogId);
     if (!blog) {
-        res.send(HTTP_STATUS.NOT_FOUND)
+        res.sendStatus(HTTP_STATUS.NOT_FOUND)
         return
     }
 
@@ -81,7 +84,7 @@ blogsRouter.get("/:blogId/posts", async (req: ReqWithParamsAndQuery<{
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
     } else {
-        res.send(HTTP_STATUS.NOT_FOUND)
+        res.sendStatus(HTTP_STATUS.NOT_FOUND)
     }
 
 })
