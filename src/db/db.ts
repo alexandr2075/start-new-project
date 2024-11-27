@@ -1,18 +1,21 @@
-import {Db, MongoClient} from "mongodb";
+import {MongoClient} from "mongodb";
 import {SETTINGS} from "../settings";
-import {UserDBModel} from "../models/usersModels";
+import {UserInputDBModel} from "../models/usersModels";
+import {BlogViewModel} from "../models/blogsModels";
+import {PostViewModel} from "../models/postsModels";
+import {CommentInputModel} from "../models/commentModel";
 
 export const db = {
     client: {} as MongoClient,
 
-    getDbName(): Db {
+    getDbName() {
         return this.client.db(SETTINGS.DB_NAME);
     },
     async run(url: string) {
         try {
             this.client = new MongoClient(url)
             await this.client.connect();
-            await this.getDbName().command({ping: 1});
+            await this.client.db(SETTINGS.DB_NAME).command({ping: 1});
             console.log("Connected successfully to mongo server");
         } catch (e: unknown) {
             console.error("Can't connect to mongo server", e);
@@ -27,11 +30,11 @@ export const db = {
     async drop() {
         try {
             //await this.getDbName().dropDatabase()
-            const collections = await this.getDbName().listCollections().toArray();
+            const collections = await this.client.db(SETTINGS.DB_NAME).listCollections().toArray();
 
             for (const collection of collections) {
                 const collectionName = collection.name;
-                await this.getDbName().collection(collectionName).deleteMany({});
+                await this.client.db(SETTINGS.DB_NAME).collection(collectionName).deleteMany({});
             }
         } catch (e: unknown) {
             console.error('Error in drop db:', e);
@@ -40,14 +43,14 @@ export const db = {
     },
     getCollections() {
         return {
-            usersCollection: this.getDbName().collection('test')
-            //blogsCollection:
-
-            //...all collections
+            usersCollection: this.getDbName().collection<UserInputDBModel>('users'),
+            blogsCollection: this.getDbName().collection<BlogViewModel>('blogs'),
+            postsCollection: this.getDbName().collection<PostViewModel>('posts'),
+            commentsCollection: this.getDbName().collection<CommentInputModel>('comments')
         }
     },
     getCollectionByName(name: string) {
-        return this.getDbName().collection(name)
+        return this.getDbName().collection<UserInputDBModel>(name)
     },
     getClient() {
         return this.client;
@@ -55,4 +58,4 @@ export const db = {
 }
 
 
-export const usersCollection = db.getDbName().collection<Omit<UserDBModel, '_id'>>('users')
+// export const usersCollection = db.client.db(SETTINGS.DB_NAME).collection<Omit<UserDBModel, '_id'>>('users')

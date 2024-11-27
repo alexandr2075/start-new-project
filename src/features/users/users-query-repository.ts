@@ -1,9 +1,7 @@
-import {client} from "../../db/dbMongo";
-import {SETTINGS} from "../../settings";
-import {QueryUserModel, UserInputDBModel} from "../../models/usersModels";
+import {QueryUserModel, UserInputDBModel, UsersViewModel, UserViewModel} from "../../models/usersModels";
 import {paginationQueriesUsers} from "../../helpers/pagination-queries-users";
-import {UsersViewModel, UserViewModel} from "../../models/usersModels";
 import {ObjectId, WithId} from "mongodb";
+import {db} from "../../db/db";
 
 export const usersQueryRepository = {
     async getAllUsers(query: QueryUserModel): Promise<UsersViewModel> {
@@ -17,8 +15,7 @@ export const usersQueryRepository = {
             }
         }
 
-        const items = await client.db(SETTINGS.DB_NAME)
-            .collection<UserInputDBModel>('users').find(search)
+        const items = await db.getCollections().usersCollection.find(search)
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
@@ -32,8 +29,7 @@ export const usersQueryRepository = {
                 createdAt: user.createdAt
             }
         })
-        const totalCount = await client.db(SETTINGS.DB_NAME)
-            .collection<UserInputDBModel>('users').countDocuments(search)
+        const totalCount = await db.getCollections().usersCollection.countDocuments(search)
 
         return {
             pagesCount: Math.ceil(totalCount / defaultValues.pageSize),
@@ -45,14 +41,14 @@ export const usersQueryRepository = {
     },
 
     async getUserByObjectId(_id: ObjectId) {
-        const user = await client.db(SETTINGS.DB_NAME).collection<UserInputDBModel>('users')
+        const user = await db.getCollections().usersCollection
             .findOne({_id}, {projection: {password: 0}})
         return user ? this._getInView(user) : null;
     },
 
     async findById(id: string): Promise<UserViewModel | null> {
         if (!this._checkObjectId(id)) return null;
-        const user = await client.db(SETTINGS.DB_NAME).collection<UserInputDBModel>('users').findOne({_id: new ObjectId(id)});
+        const user = await db.getCollections().usersCollection.findOne({_id: new ObjectId(id)});
         return user ? this._getInView(user) : null;
     },
     _getInView(user: WithId<UserInputDBModel>): UserViewModel {

@@ -1,15 +1,7 @@
 import {randomUUID} from "crypto";
 import {add} from "date-fns/add";
 import {db} from "../../src/db/db";
-
-type RegisterUserPayloadType = {
-    login: string,
-    password: string,
-    email: string,
-    code?: string,
-    expirationDate?: Date,
-    isConfirmed?: boolean
-}
+import {UserInputDBModel, UserInputModel} from "../../src/models/usersModels";
 
 export const testSeeder = {
     createUserDto() {
@@ -19,6 +11,7 @@ export const testSeeder = {
             password: '123456789'
         }
     },
+
     createUserDtos(count: number) {
         const users = [];
 
@@ -31,27 +24,19 @@ export const testSeeder = {
         }
         return users;
     },
-    async insertUser(
-        {
-            login,
-            password,
-            email,
-            code,
-            expirationDate,
-            isConfirmed
-        }: RegisterUserPayloadType
-    ) {
-        const newUser = {
+
+    async insertUser({login, password, email, code}: UserInputModel) {
+        const newUser: UserInputDBModel = {
             login,
             email,
             password: password,
             createdAt: new Date(),
             emailConfirmation: {
                 confirmationCode: code ?? randomUUID(),
-                expirationDate: expirationDate ?? add(new Date(), {
+                expirationDate: add(new Date(), {
                     minutes: 30,
                 }),
-                isConfirmed: isConfirmed ?? false
+                isConfirmed: 'unconfirmed'
             }
         };
         const res = await db.getCollections().usersCollection.insertOne({...newUser})

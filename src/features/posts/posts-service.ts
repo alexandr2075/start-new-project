@@ -1,11 +1,10 @@
 import {blogsRepository} from "../blogs/blogs-db-repository";
-import {client} from "../../db/dbMongo";
-import {HTTP_STATUS, SETTINGS} from "../../settings";
+import {HTTP_STATUS} from "../../settings";
 import {usersRepository} from "../users/users-db-repository";
 import {postsRepository} from "./posts-db-repository";
 import {PostInputModel, PostViewModel} from "../../models/postsModels";
 import {mapToOut} from "../../helpers/mapper";
-import {ObjectId} from "mongodb";
+import {commentsRepository} from "../comments/comments-db-repository";
 
 export const postsService = {
 //create new post
@@ -66,8 +65,7 @@ export const postsService = {
     },
 
     async deletePostById(id: string) {
-        const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').deleteOne({id: id});
-        return result.deletedCount === 1
+        return await postsRepository.deletePostById(id)
     },
 
     //create new comment by postId
@@ -95,7 +93,7 @@ export const postsService = {
             createdAt: new Date().toISOString(),
             postId
         }
-        const result = await postsRepository.createCommentByPostId(newComment);
+        const result = await commentsRepository.createCommentByPostId(newComment);
         if (!result) {
             return {
                 status: HTTP_STATUS.NOT_FOUND,

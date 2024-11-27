@@ -2,6 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import {jwtService} from "../../../helpers/jwtService";
 import {usersRepository} from "../../users/users-db-repository";
 import {IdType} from "../../../types/id";
+import {SETTINGS} from "../../../settings";
 
 export const accessTokenGuard = async (req: Request,
                                        res: Response,
@@ -18,7 +19,7 @@ export const accessTokenGuard = async (req: Request,
         return
     }
 
-    const payload = await jwtService.verifyToken(token);
+    const payload = await jwtService.verifyToken(token, SETTINGS.SECRET_KEY_FOR_ACCESS_TOKEN);
 
     if (payload) {
         const {userId} = payload;

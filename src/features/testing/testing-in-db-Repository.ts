@@ -1,9 +1,8 @@
-import {client} from "../../db/dbMongo";
-import {SETTINGS} from "../../settings";
+import {db} from "../../db/db";
 
 export const deleteAllData = async () => {
-    await client.db(SETTINGS.DB_NAME).collection(SETTINGS.NAME_COLLECTIONS.BLOGS).deleteMany({})
-    await client.db(SETTINGS.DB_NAME).collection(SETTINGS.NAME_COLLECTIONS.POSTS).deleteMany({})
-    await client.db(SETTINGS.DB_NAME).collection(SETTINGS.NAME_COLLECTIONS.USERS).deleteMany({})
-    await client.db(SETTINGS.DB_NAME).collection(SETTINGS.NAME_COLLECTIONS.COMMENTS).deleteMany({})
+    await db.getCollections().blogsCollection.deleteMany({})
+    await db.getCollections().postsCollection.deleteMany({})
+    await db.getCollections().usersCollection.deleteMany({})
+    await db.getCollections().commentsCollection.deleteMany({})
 }

@@ -8,10 +8,12 @@ import {SETTINGS} from "./settings";
 import {usersRouter} from "./features/users/users-router";
 import {authRouter} from "./features/auth-login/auth-router";
 import {commentsRouter} from "./features/comments/comments-router";
+import cookieParser from "cookie-parser";
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body и query во всех реквестах
 app.use(cors()) // разрешить любым фронтам делать запросы на наш бэк
+app.use(cookieParser())
 
 app.get('/', (req, res) => {
     // эндпоинт, который будет показывать на верселе какая версия бэкэнда сейчас залита

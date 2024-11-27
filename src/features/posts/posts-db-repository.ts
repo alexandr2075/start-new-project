@@ -1,21 +1,19 @@
-import {client} from "../../db/dbMongo";
-import {SETTINGS} from "../../settings";
-import {CommentInputModel, CommentViewModel, CommentViewModelInDB} from "../../models/commentModel";
 import {PostViewModel} from "../../models/postsModels";
 import {ObjectId} from "mongodb";
+import {db} from "../../db/db";
 
 export const postsRepository = {
     async createPost(newPost: PostViewModel) {
-        const insertAcknow = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').insertOne(newPost);
-        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({_id: new Object(insertAcknow.insertedId)})
+        const insertAcknow = await db.getCollections().postsCollection.insertOne(newPost);
+        return await db.getCollections().postsCollection.findOne({_id: new Object(insertAcknow.insertedId)})
     },
 
     async getPostById(id: string): Promise<PostViewModel | null> {
-        return await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').findOne({_id: new ObjectId(id)});
+        return await db.getCollections().postsCollection.findOne({_id: new ObjectId(id)});
     },
 
     async updatePostById(id: string, updatedPost: PostViewModel) {
-        const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').updateOne({_id: new ObjectId(id)}, {
+        const result = await db.getCollections().postsCollection.updateOne({_id: new ObjectId(id)}, {
             $set: {
                 title: updatedPost.title,
                 shortDescription: updatedPost.shortDescription,
@@ -27,15 +25,8 @@ export const postsRepository = {
     },
 
     async deletePostById(id: string) {
-        const result = await client.db(SETTINGS.DB_NAME).collection<PostViewModel>('posts').deleteOne({_id: new ObjectId(id)});
+        const result = await db.getCollections().postsCollection.deleteOne({_id: new ObjectId(id)});
         return result.deletedCount === 1
     },
 
-    async createCommentByPostId(newComment: CommentInputModel) {
-        const insertAcknow = await client.db(SETTINGS.DB_NAME)
-            .collection<CommentInputModel>('comments').insertOne(newComment);
-        return await client.db(SETTINGS.DB_NAME)
-            .collection<CommentViewModelInDB>('comments').findOne({_id: new Object(insertAcknow.insertedId)})
-
-    },
 }

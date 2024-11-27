@@ -9,6 +9,7 @@ import {QueryFilter} from "../../models/queryModel";
 import {ReqWithParams, ReqWithParamsAndQuery, ReqWithQuery} from "../../types/requestPaginationFilter";
 import {postsService} from "../posts/posts-service";
 import {blogsQueryRepository} from "./blogs-query-repository";
+import {postsQueryRepository} from "../posts/posts-query-repository";
 
 export const blogsRouter = express.Router();
 
@@ -80,7 +81,7 @@ blogsRouter.get("/:blogId/posts", async (req: ReqWithParamsAndQuery<{
         return
     }
 
-    const result = await blogsQueryRepository.getAllPostsById(blogId, queryFilter)
+    const result = await postsQueryRepository.getAllPostsById(blogId, queryFilter)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
     } else {

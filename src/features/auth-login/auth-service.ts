@@ -6,15 +6,47 @@ import {genHashPassword} from "../../helpers/genHashPassword";
 import {randomUUID, UUID} from "node:crypto";
 import {add} from "date-fns";
 import {businessService} from "../../domains/businessService";
+import {SETTINGS} from "../../settings";
+import {createNewPairTokens} from "../../helpers/createNewPairTokens";
 
 export const authService = {
 
     async authLoginUser(body: { loginOrEmail: string, password: string }) {
         const {loginOrEmail, password} = body;
         const user = await usersRepository.authLoginUser(loginOrEmail, password)
+        console.log('user', user);
         if (!user) return null;
+        console.log('dbname', SETTINGS.DB_NAME)
+        console.log('secret', SETTINGS.SECRET_KEY_FOR_ACCESS_TOKEN)
+        const {accessToken, refreshToken, iatVersionToken} = await createNewPairTokens(user._id.toString())
+        await usersRepository.updateUser(
+            user._id,
+            'iatVersionToken',
+            iatVersionToken.iat)
+        return {accessToken, refreshToken}
+    },
 
-        return jwtService.createToken(user._id.toString())
+    async authUpdatePairTokens(token: string) {
+        const decodeToken = await jwtService.decodeToken(token)
+        const user = await usersRepository.getUserById(decodeToken.userId)
+        if (!user || user.iatVersionToken !== decodeToken.iat) return null;
+        const {accessToken, refreshToken, iatVersionToken} = await createNewPairTokens(decodeToken.userId)
+        await usersRepository.updateUser(
+            decodeToken.userId,
+            'iatVersionToken',
+            iatVersionToken.iat)
+        return {accessToken, refreshToken}
+    },
+
+    async authDeleteRefreshToken(token: string) {
+        const decodeToken = await jwtService.decodeToken(token)
+        const user = await usersRepository.getUserById(decodeToken.userId)
+        if (!user || user.iatVersionToken !== decodeToken.iat) return null;
+        await usersRepository.updateUser(
+            decodeToken.userId,
+            'iatVersionToken',
+            null)
+        return true
     },
 
     async authRegistrationUser(user: UserInputModel) {
@@ -44,7 +76,7 @@ export const authService = {
             login,
             email,
             password: hashPassword,
-            createdAt: new Date().toISOString(),
+            createdAt: new Date(),
             emailConfirmation: {
                 confirmationCode: randomUUID(),
                 expirationDate: add(new Date(), {
@@ -87,7 +119,7 @@ export const authService = {
         const newConfirmationCode: UUID = randomUUID()
         if (user) {
             const updatedUser = await usersRepository
-                .updateConfirmationCodeForUser(user._id, newConfirmationCode)
+                .updateUser(user._id, 'emailConfirmation.confirmationCode', newConfirmationCode)
             await businessService
                 .sendConfirmationCodeToEmail(user!.email, updatedUser!.emailConfirmation.confirmationCode)
 
@@ -132,7 +164,10 @@ export const authService = {
             }
         }
 
-        const isChanchedStatus = await usersRepository.updateConfirmationStatusForUser(user._id)
+        await usersRepository.updateUser(
+            user._id,
+            'emailConfirmation.confirmationCode',
+            'confirmed')
         return {
             status: 204,
             data: 'Email was verified. Account was activated'

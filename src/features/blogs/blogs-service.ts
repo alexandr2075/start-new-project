@@ -1,16 +1,16 @@
 import {blogsRepository} from "./blogs-db-repository";
-import {BlogViewModel} from "../../models/blogsModels";
+import {BlogReqModel, BlogViewModel} from "../../models/blogsModels";
 import {mapToOut} from "../../helpers/mapper";
 
 export const blogsService = {
 
-    async createBlog(blog: BlogViewModel) {
+    async createBlog(blog: BlogReqModel) {
         const {name, description, websiteUrl} = blog;
         const newBlog = {
             name,
             description,
             websiteUrl,
-            createdAt: new Date().toISOString(),
+            createdAt: new Date(),
             isMembership: false
         }
         const createdBlog = await blogsRepository.createBlog(newBlog)

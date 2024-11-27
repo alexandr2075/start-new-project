@@ -1,13 +1,11 @@
 import express, {Request, Response} from "express";
 import {sendAccumulatedErrorsMiddleware} from "../../commonMiddleware/sendAccumulatedErrorsMiddleware";
-import {HTTP_STATUS, SETTINGS} from "../../settings";
+import {HTTP_STATUS} from "../../settings";
 import {ReqWithParams} from "../../types/requestPaginationFilter";
 import {accessTokenGuard} from "../auth-login/guards/access.token.guard";
 import {commentsQueryRepository} from "./comments-query-repository";
 import {checkCommentIdFromParamMiddleware, checkContentMiddleware} from "./middlewaresComments";
 import {commentsService} from "./comments-service";
-import {client} from "../../db/dbMongo";
-import {CommentViewModelInDB} from "../../models/commentModel";
 
 
 export const commentsRouter = express.Router();

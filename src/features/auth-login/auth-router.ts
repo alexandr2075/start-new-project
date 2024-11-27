@@ -1,5 +1,5 @@
 import express, {Request, Response} from "express";
-import {HTTP_STATUS, SETTINGS} from "../../settings";
+import {HTTP_STATUS} from "../../settings";
 import {authService} from "./auth-service";
 import {
     checkEmailMiddleware,
@@ -22,10 +22,39 @@ authRouter.post("/login",
     checkPasswordMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const token = await authService.authLoginUser(req.body)
+        console.log('body', req.body);
+        const tokens = await authService.authLoginUser(req.body)
 
-        if (token) {
-            res.status(HTTP_STATUS.OK).send({accessToken: token})
+        if (tokens) {
+            res.cookie('cookie_refresh', tokens.refreshToken, {httpOnly: true, secure: true})
+            res.status(HTTP_STATUS.OK).send({accessToken: tokens.accessToken})
+        } else {
+            res.sendStatus(HTTP_STATUS.UNAUTHORIZED)
+        }
+    })
+
+//refresh-token
+authRouter.post("/refresh-token",
+    async (req: Request, res: Response) => {
+        const refreshTokenFromCookies = req.cookies.cookie_refresh
+        const tokens = await authService.authUpdatePairTokens(refreshTokenFromCookies)
+
+        if (tokens) {
+            res.cookie('cookie_refresh', tokens.refreshToken, {httpOnly: true, secure: true})
+            res.status(HTTP_STATUS.OK).send({accessToken: tokens})
+        } else {
+            res.sendStatus(HTTP_STATUS.UNAUTHORIZED)
+        }
+    })
+
+//logout
+authRouter.post("/logout",
+    async (req: Request, res: Response) => {
+        const refreshTokenFromCookies = req.cookies.cookie_refresh
+        const isLogout = await authService.authDeleteRefreshToken(refreshTokenFromCookies)
+
+        if (isLogout) {
+            res.sendStatus(HTTP_STATUS.NO_CONTENT)
         } else {
             res.sendStatus(HTTP_STATUS.UNAUTHORIZED)
         }

@@ -1,5 +1,4 @@
 import {ObjectId, SortDirection} from "mongodb";
-import {DateArg} from "date-fns";
 import {UUID} from "node:crypto";
 
 export type QueryUserModel = {
@@ -15,7 +14,7 @@ export type UserViewModel = {
     id: string;
     login: string;
     email: string;
-    createdAt: string;
+    createdAt: Date;
 }
 
 export type UserInputDBModel = {
@@ -41,6 +40,7 @@ export type UserDBModel = {
         expirationDate?: Date,
         isConfirmed: 'confirmed' | 'unconfirmed'
     }
+    iatVersionToken?: string;
 }
 
 export type UsersViewModel = {
@@ -55,4 +55,7 @@ export type UserInputModel = {
     login: string;
     password: string;
     email: string;
+    code?: UUID
+    isConfirmed?: 'confirmed' | 'unconfirmed'
+    expirationDate?: Date;
 }

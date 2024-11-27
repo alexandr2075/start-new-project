@@ -1,21 +1,18 @@
-import {client} from "../../db/dbMongo";
-import {SETTINGS} from "../../settings";
 import {paginationQueriesComments} from "../../helpers/pagination-queries-comments";
-import {CommentViewModel, CommentViewModelInDB, QueryCommentsModel} from "../../models/commentModel";
+import {CommentInputModel, CommentViewModel, QueryCommentsModel} from "../../models/commentModel";
 import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
-import {PostViewModel} from "../../models/postsModels";
 import {mapArrToOut, mapArrToOutWithoutPostId, mapToOut} from "../../helpers/mapper";
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
+import {db} from "../../db/db";
 
 export const postsQueryRepository = {
 
     async getAllPosts(query: QueryFilter): Promise<ResponseModel> {
         const defaultValues = paginationQueriesBlogs(query)
 
-        const items = await client.db(SETTINGS.DB_NAME)
-            .collection<PostViewModel>('posts').find({})
+        const items = await db.getCollections().postsCollection.find({})
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
@@ -33,8 +30,7 @@ export const postsQueryRepository = {
             }
         })
 
-        const totalCount = await client.db(SETTINGS.DB_NAME)
-            .collection<PostViewModel>('posts').countDocuments()
+        const totalCount = await db.getCollections().postsCollection.countDocuments()
 
         return {
             pagesCount: Math.ceil(totalCount / defaultValues.pageSize),
@@ -46,8 +42,7 @@ export const postsQueryRepository = {
     },
 
     async getPostById(id: string) {
-        const post = await client.db(SETTINGS.DB_NAME)
-            .collection<PostViewModel>('posts').findOne({_id: new ObjectId(id)});
+        const post = await db.getCollections().postsCollection.findOne({_id: new ObjectId(id)});
         if (!post) return null
         return mapToOut(post)
     },
@@ -55,16 +50,14 @@ export const postsQueryRepository = {
     async getAllCommentsForSpecifiedPost(query: QueryCommentsModel, postId: string): Promise<ResponseModel> {
         const defaultValues = paginationQueriesComments(query)
 
-        const items = await client.db(SETTINGS.DB_NAME)
-            .collection<CommentViewModel>('comments').find({postId})
+        const items: WithId<CommentInputModel>[] = await db.getCollections().commentsCollection.find({postId})
             .sort(defaultValues.sortBy, defaultValues.sortDirection)
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
             .toArray()
 
-        const itemsWithId = mapArrToOutWithoutPostId(items)
-        const totalCount = await client.db(SETTINGS.DB_NAME)
-            .collection<CommentViewModel>('comments').countDocuments({postId})
+        const itemsWithId: CommentViewModel[] = mapArrToOutWithoutPostId(items)
+        const totalCount = await db.getCollections().commentsCollection.countDocuments({postId})
 
         return {
             pagesCount: Math.ceil(totalCount / defaultValues.pageSize),
@@ -73,5 +66,26 @@ export const postsQueryRepository = {
             totalCount,
             items: itemsWithId
         }
-    }
+    },
+
+    // get all POSTS for a specific blog
+    async getAllPostsById(blogId: string, query: QueryFilter): Promise<ResponseModel> {
+        const defaultValues = paginationQueriesBlogs(query)
+
+        const items = await db.getCollections().postsCollection.find({blogId: blogId})
+            .sort(defaultValues.sortBy, defaultValues.sortDirection)
+            .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
+            .limit(defaultValues.pageSize)
+            .toArray()
+        const totalCount = await db.getCollections().postsCollection.countDocuments({blogId: blogId})
+
+        return {
+            pagesCount: Math.ceil(totalCount / defaultValues.pageSize),
+            page: defaultValues.pageNumber,
+            pageSize: defaultValues.pageSize,
+            totalCount,
+            items: mapArrToOut(items)
+        }
+
+    },
 }

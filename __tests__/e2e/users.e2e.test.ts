@@ -1,11 +1,26 @@
 import request from "supertest";
 import {app} from "../../src/app";
 import {HTTP_STATUS, SETTINGS} from "../../src/settings";
+import {MongoMemoryServer} from "mongodb-memory-server";
+import {db} from "../../src/db/db";
 
 describe('users', () => {
 
     const buff2 = Buffer.from(SETTINGS.ADMIN_AUTH, 'utf8')
     const codedAuth = buff2.toString('base64')
+
+    let mongoServer: MongoMemoryServer;
+
+    beforeAll(async () => {
+        mongoServer = await MongoMemoryServer.create();
+        const uri = mongoServer.getUri();
+        await db.run(uri)
+    });
+
+    afterAll(async () => {
+        await db.client.close();
+        await mongoServer.stop();
+    });
 
     beforeEach(async () => {
         await request(app).delete(SETTINGS.PATH.TESTING_ALL_DATA)
