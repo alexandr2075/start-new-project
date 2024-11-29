@@ -2,6 +2,7 @@ import {randomUUID} from "crypto";
 import {add} from "date-fns/add";
 import {db} from "../../src/db/db";
 import {UserInputDBModel, UserInputModel} from "../../src/models/usersModels";
+import {genHashPassword} from "../../src/helpers/genHashPassword";
 
 export const testSeeder = {
     createUserDto() {
@@ -26,10 +27,11 @@ export const testSeeder = {
     },
 
     async insertUser({login, password, email, code}: UserInputModel) {
+        const hashPassword = await genHashPassword(password)
         const newUser: UserInputDBModel = {
             login,
             email,
-            password: password,
+            password: hashPassword,
             createdAt: new Date(),
             emailConfirmation: {
                 confirmationCode: code ?? randomUUID(),

@@ -4,14 +4,14 @@ import {commentsRepository} from "./comments-db-repository";
 
 export const commentsService = {
 
-    async updateCommentByCommentId(commentId: string, content: string, user: IdType) {
+    async updateCommentByCommentId(commentId: string, content: string, user: string) {
         const comment = await commentsRepository.getCommentById(commentId);
         if (!comment) {
             return {
                 status: HTTP_STATUS.NOT_FOUND
             }
         }
-        if (comment.commentatorInfo.userId !== user.id) {
+        if (comment.commentatorInfo.userId !== user) {
             return {
                 status: HTTP_STATUS.FORBIDDEN
             }
@@ -26,14 +26,14 @@ export const commentsService = {
 
     },
 
-    async deleteCommentByCommentId(commentId: string, user: IdType) {
+    async deleteCommentByCommentId(commentId: string, userId: string) {
         const comment = await commentsRepository.getCommentById(commentId);
         if (!comment) {
             return {
                 status: HTTP_STATUS.NOT_FOUND
             }
         }
-        if (comment.commentatorInfo.userId !== user.id) {
+        if (comment.commentatorInfo.userId !== userId) {
             console.log('forb')
             return {
                 status: HTTP_STATUS.FORBIDDEN

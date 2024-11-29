@@ -27,7 +27,7 @@ commentsRouter.put("/:id",
     checkContentMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const result = await commentsService.updateCommentByCommentId(req.params.id, req.body.content, req.user!)
+        const result = await commentsService.updateCommentByCommentId(req.params.id, req.body.content, req.user.id)
 
         if (result && result.status === HTTP_STATUS.FORBIDDEN) {
             res.sendStatus(HTTP_STATUS.FORBIDDEN)
@@ -46,7 +46,7 @@ commentsRouter.delete("/:id",
     checkCommentIdFromParamMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const result = await commentsService.deleteCommentByCommentId(req.params.id, req.user!)
+        const result = await commentsService.deleteCommentByCommentId(req.params.id, req.user.id)
 
         if (result && result.status === HTTP_STATUS.FORBIDDEN) {
             res.sendStatus(HTTP_STATUS.FORBIDDEN)

@@ -14,10 +14,7 @@ export const authService = {
     async authLoginUser(body: { loginOrEmail: string, password: string }) {
         const {loginOrEmail, password} = body;
         const user = await usersRepository.authLoginUser(loginOrEmail, password)
-        console.log('user', user);
         if (!user) return null;
-        console.log('dbname', SETTINGS.DB_NAME)
-        console.log('secret', SETTINGS.SECRET_KEY_FOR_ACCESS_TOKEN)
         const {accessToken, refreshToken, iatVersionToken} = await createNewPairTokens(user._id.toString())
         await usersRepository.updateUser(
             user._id,
@@ -40,6 +37,7 @@ export const authService = {
 
     async authDeleteRefreshToken(token: string) {
         const decodeToken = await jwtService.decodeToken(token)
+        if (!decodeToken) return null;
         const user = await usersRepository.getUserById(decodeToken.userId)
         if (!user || user.iatVersionToken !== decodeToken.iat) return null;
         await usersRepository.updateUser(

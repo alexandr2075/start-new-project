@@ -22,17 +22,19 @@ export const accessTokenGuard = async (req: Request,
     const payload = await jwtService.verifyToken(token, SETTINGS.SECRET_KEY_FOR_ACCESS_TOKEN);
 
     if (payload) {
-        const {userId} = payload;
-
-        const user = await usersRepository.doesExistById(userId);
-
+        if (Math.floor(new Date().getTime() / 1000) >= payload.exp) {
+            res.sendStatus(401);
+            return
+        }
+        const user = await usersRepository.doesExistById(payload.userId);
         if (!user) {
             res.sendStatus(401);
             return
         }
 
-        req.user = {id: userId} as IdType
+        req.user = {id: payload.userId}
         return next();
     }
     res.sendStatus(401);
 }
+

@@ -13,6 +13,8 @@ import {accessTokenGuard} from "./guards/access.token.guard";
 import {RequestWithUserId} from "../../types/requestPaginationFilter";
 import {IdType} from "../../types/id";
 import {usersQueryRepository} from "../users/users-query-repository";
+import {checkRefreshTokenCookieMiddleware} from "./middlewaresAuth";
+import {refreshTokenGuard} from "./guards/refresh.token.guard";
 
 export const authRouter = express.Router();
 
@@ -22,11 +24,9 @@ authRouter.post("/login",
     checkPasswordMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        console.log('body', req.body);
         const tokens = await authService.authLoginUser(req.body)
-
         if (tokens) {
-            res.cookie('cookie_refresh', tokens.refreshToken, {httpOnly: true, secure: true})
+            res.cookie('refreshToken', tokens.refreshToken, {httpOnly: true, secure: true})
             res.status(HTTP_STATUS.OK).send({accessToken: tokens.accessToken})
         } else {
             res.sendStatus(HTTP_STATUS.UNAUTHORIZED)
@@ -35,13 +35,16 @@ authRouter.post("/login",
 
 //refresh-token
 authRouter.post("/refresh-token",
+    checkRefreshTokenCookieMiddleware,
+    refreshTokenGuard,
+    sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const refreshTokenFromCookies = req.cookies.cookie_refresh
+        const refreshTokenFromCookies = req.cookies.refreshToken
         const tokens = await authService.authUpdatePairTokens(refreshTokenFromCookies)
 
         if (tokens) {
-            res.cookie('cookie_refresh', tokens.refreshToken, {httpOnly: true, secure: true})
-            res.status(HTTP_STATUS.OK).send({accessToken: tokens})
+            res.cookie('refreshToken', tokens.refreshToken, {httpOnly: true, secure: true})
+            res.status(HTTP_STATUS.OK).send({accessToken: tokens.accessToken})
         } else {
             res.sendStatus(HTTP_STATUS.UNAUTHORIZED)
         }
@@ -49,8 +52,12 @@ authRouter.post("/refresh-token",
 
 //logout
 authRouter.post("/logout",
+    checkRefreshTokenCookieMiddleware,
+    refreshTokenGuard,
+    sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const refreshTokenFromCookies = req.cookies.cookie_refresh
+        const refreshTokenFromCookies = req.cookies.refreshToken
+
         const isLogout = await authService.authDeleteRefreshToken(refreshTokenFromCookies)
 
         if (isLogout) {
@@ -64,14 +71,23 @@ authRouter.get("/me",
     accessTokenGuard,
     async (req: RequestWithUserId<IdType>,
            res: Response) => {
-        const userId = req?.user?.id as string;
+        const userId = req.user.id
 
         if (!userId) {
             res.sendStatus(401);
             return
         }
         const me = await usersQueryRepository.findById(userId);
-        res.status(200).send(me);
+        if (me) {
+            res.status(200).send({
+                userId: me.id,
+                login: me.login,
+                email: me.email,
+            });
+        } else {
+            res.status(401)
+        }
+
     })
 
 //registration user with confirmation code

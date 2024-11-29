@@ -1,4 +1,11 @@
-import jwt from "jsonwebtoken";
+import jwt, {JwtPayload} from "jsonwebtoken";
+
+export type JwtPayloadType = {
+
+    userId: string,
+    iat: number,
+    exp: number
+}
 
 
 export const jwtService = {
@@ -19,12 +26,21 @@ export const jwtService = {
             return null;
         }
     },
-    async verifyToken(token: string, secretKey: string): Promise<{ userId: string } | null> {
+
+    async verifyToken(token: string, secretKey: string): Promise<(JwtPayload & JwtPayloadType) | null> {
         try {
-            return jwt.verify(token, secretKey) as { userId: string };
+
+            const decoded = jwt.verify(token, secretKey);
+
+            if (typeof decoded !== 'object' || decoded === null) {
+                console.error("Invalid token payload structure");
+                return null;
+            }
+
+            return decoded as JwtPayload & JwtPayloadType;
         } catch (error) {
-            console.error("Token verify some error", error);
+            console.error("Token verification error:", error);
             return null;
         }
-    },
+    }
 };
