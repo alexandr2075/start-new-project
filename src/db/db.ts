@@ -4,6 +4,8 @@ import {UserInputDBModel} from "../models/usersModels";
 import {BlogViewModel} from "../models/blogsModels";
 import {PostViewModel} from "../models/postsModels";
 import {CommentInputModel} from "../models/commentModel";
+import type {DeviceDBType} from "../models/securityModels";
+import {RequestAttemptDBType} from "../models/requestModels";
 
 export const db = {
     client: {} as MongoClient,
@@ -46,7 +48,9 @@ export const db = {
             usersCollection: this.getDbName().collection<UserInputDBModel>('users'),
             blogsCollection: this.getDbName().collection<BlogViewModel>('blogs'),
             postsCollection: this.getDbName().collection<PostViewModel>('posts'),
-            commentsCollection: this.getDbName().collection<CommentInputModel>('comments')
+            commentsCollection: this.getDbName().collection<CommentInputModel>('comments'),
+            security_devicesCollection: this.getDbName().collection<DeviceDBType>('security_devices'),
+            requestsCollection: this.getDbName().collection<RequestAttemptDBType>('requests'),
         }
     },
     getCollectionByName(name: string) {

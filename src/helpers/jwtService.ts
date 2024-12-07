@@ -1,4 +1,5 @@
 import jwt, {JwtPayload} from "jsonwebtoken";
+import {SETTINGS} from "../settings";
 
 export type JwtPayloadType = {
 
@@ -9,14 +10,20 @@ export type JwtPayloadType = {
 
 
 export const jwtService = {
-    async createToken(userId: string, secretKey: string, expTime: string): Promise<string> {
-        return jwt.sign(
+    async createTokens(userId: string, deviceId: string) {
+        const accessToken = jwt.sign(
             {userId},
-            secretKey,
-            {
-                expiresIn: expTime,
-            }
+            SETTINGS.SECRET_KEY_FOR_ACCESS_TOKEN,
+            {expiresIn: SETTINGS.EXP_TIME_FOR_ACCESS_TOKEN}
         );
+
+        const refreshToken = jwt.sign(
+            {userId, deviceId},
+            SETTINGS.SECRET_KEY_FOR_REFRESH_TOKEN,
+            {expiresIn: SETTINGS.EXP_TIME_FOR_REFRESH_TOKEN}
+        );
+
+        return {accessToken, refreshToken};
     },
     async decodeToken(token: string): Promise<any> {
         try {
@@ -31,7 +38,7 @@ export const jwtService = {
         try {
 
             const decoded = jwt.verify(token, secretKey);
-
+            console.log('decoded', decoded);
             if (typeof decoded !== 'object' || decoded === null) {
                 console.error("Invalid token payload structure");
                 return null;

@@ -1,50 +1,63 @@
+import {add} from "date-fns";
+import {randomUUID, UUID} from "node:crypto";
+import {businessService} from "../../domains/businessService";
+import {genHashPassword} from "../../helpers/genHashPassword";
 import {jwtService} from "../../helpers/jwtService";
 import {UserDBModel, UserInputDBModel, UserInputModel} from "../../models/usersModels";
 import {ErrMessAndField} from "../../types/result";
+import {securityService} from "../security/security-service";
 import {usersRepository} from "../users/users-db-repository";
-import {genHashPassword} from "../../helpers/genHashPassword";
-import {randomUUID, UUID} from "node:crypto";
-import {add} from "date-fns";
-import {businessService} from "../../domains/businessService";
-import {SETTINGS} from "../../settings";
-import {createNewPairTokens} from "../../helpers/createNewPairTokens";
+import type {ClientMeta} from "../../types";
+import type {DeviceDBType} from "../../models/securityModels";
+import {securityRepository} from "../security/security-repository";
+
+type LoginInputModel = {
+    loginOrEmail: string;
+    password: string;
+    ip?: string;
+    userAgent?: string;
+};
 
 export const authService = {
 
-    async authLoginUser(body: { loginOrEmail: string, password: string }) {
-        const {loginOrEmail, password} = body;
-        const user = await usersRepository.authLoginUser(loginOrEmail, password)
+    async authLoginUser(loginData: LoginInputModel, clientMeta: ClientMeta) {
+        const user = await this._validateUser(loginData);
         if (!user) return null;
-        const {accessToken, refreshToken, iatVersionToken} = await createNewPairTokens(user._id.toString())
-        await usersRepository.updateUser(
-            user._id,
-            'iatVersionToken',
-            iatVersionToken.iat)
-        return {accessToken, refreshToken}
+        const deviceId = randomUUID();
+        const tokens = await this._generateTokens(user._id.toString(), deviceId);
+
+        const payloadRT = await jwtService.decodeToken(tokens.refreshToken);
+        const device: DeviceDBType = {
+            deviceId,
+            userId: user._id.toString(),
+            ip: clientMeta.ip || '',
+            title: clientMeta.userAgent || 'Unknown device',
+            lastActiveDate: payloadRT.iat,
+            expirationDate: payloadRT.exp
+        };
+        await securityRepository.createDevice(device);
+
+        return tokens;
     },
 
-    async authUpdatePairTokens(token: string) {
-        const decodeToken = await jwtService.decodeToken(token)
-        const user = await usersRepository.getUserById(decodeToken.userId)
-        if (!user || user.iatVersionToken !== decodeToken.iat) return null;
-        const {accessToken, refreshToken, iatVersionToken} = await createNewPairTokens(decodeToken.userId)
-        await usersRepository.updateUser(
-            decodeToken.userId,
-            'iatVersionToken',
-            iatVersionToken.iat)
-        return {accessToken, refreshToken}
+    async authUpdatePairTokens(refreshToken: string) {
+        const payload = await jwtService.decodeToken(refreshToken);
+        if (!payload) return null;
+
+        const tokens = await this._generateTokens(
+            payload.userId,
+            payload.deviceId
+        );
+        const decRT = await jwtService.decodeToken(tokens.refreshToken);
+        await securityService.updateIat(payload.deviceId, decRT.iat);
+        return tokens;
     },
 
-    async authDeleteRefreshToken(token: string) {
-        const decodeToken = await jwtService.decodeToken(token)
-        if (!decodeToken) return null;
-        const user = await usersRepository.getUserById(decodeToken.userId)
-        if (!user || user.iatVersionToken !== decodeToken.iat) return null;
-        await usersRepository.updateUser(
-            decodeToken.userId,
-            'iatVersionToken',
-            null)
-        return true
+    async authDeleteRefreshToken(refreshToken: string) {
+        const payload = await jwtService.decodeToken(refreshToken);
+        if (!payload) return null;
+
+        return securityService.deleteDevice(payload.deviceId, payload.userId);
     },
 
     async authRegistrationUser(user: UserInputModel) {
@@ -97,6 +110,7 @@ export const authService = {
 
     async authRegistrationEmailResendUser(email: string) {
         const user: UserDBModel | null = await usersRepository.getUserByEmail(email)
+        console.log('user', user)
         const errors: ErrMessAndField[] = []
         if (!user) {
             errors.push({
@@ -170,5 +184,23 @@ export const authService = {
             status: 204,
             data: 'Email was verified. Account was activated'
         }
+    },
+
+    async _validateUser(loginData: LoginInputModel): Promise<UserDBModel | null> {
+        const user = await usersRepository.authLoginUser(loginData.loginOrEmail, loginData.password);
+        if (!user) return null;
+
+        // if (user.emailConfirmation.isConfirmed !== 'confirmed') return null;
+
+        return user;
+    },
+
+    async _generateTokens(userId: string, deviceId: string) {
+        const tokens = await jwtService.createTokens(userId, deviceId);
+
+        return {
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken
+        };
     }
 }

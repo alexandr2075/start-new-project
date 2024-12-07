@@ -13,8 +13,8 @@ export const testSeeder = {
         }
     },
 
-    createUserDtos(count: number) {
-        const users = [];
+    createUserDtos(count: number): UserInputModel[] {
+        const users: UserInputModel[] = [];
 
         for (let i = 0; i <= count; i++) {
             users.push({
@@ -26,7 +26,7 @@ export const testSeeder = {
         return users;
     },
 
-    async insertUser({login, password, email, code}: UserInputModel) {
+    async insertUserUnconfirmed({login, password, email}: UserInputModel) {
         const hashPassword = await genHashPassword(password)
         const newUser: UserInputDBModel = {
             login,
@@ -34,11 +34,33 @@ export const testSeeder = {
             password: hashPassword,
             createdAt: new Date(),
             emailConfirmation: {
-                confirmationCode: code ?? randomUUID(),
+                confirmationCode: randomUUID(),
                 expirationDate: add(new Date(), {
                     minutes: 30,
                 }),
                 isConfirmed: 'unconfirmed'
+            }
+        };
+        const res = await db.getCollections().usersCollection.insertOne({...newUser})
+        return {
+            _id: res.insertedId.toString(),
+            ...newUser
+        }
+    },
+
+    async insertUserConfirmed({login, password, email}: UserInputModel) {
+        const hashPassword = await genHashPassword(password)
+        const newUser: UserInputDBModel = {
+            login,
+            email,
+            password: hashPassword,
+            createdAt: new Date(),
+            emailConfirmation: {
+                confirmationCode: randomUUID(),
+                expirationDate: add(new Date(), {
+                    minutes: 30,
+                }),
+                isConfirmed: 'confirmed'
             }
         };
         const res = await db.getCollections().usersCollection.insertOne({...newUser})

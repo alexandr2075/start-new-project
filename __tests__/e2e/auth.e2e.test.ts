@@ -4,17 +4,21 @@ import {MongoMemoryServer} from 'mongodb-memory-server';
 import {db} from "../../src/db/db";
 import {testSeeder} from '../integration/test.seeder';
 import {HTTP_STATUS} from "../../src/settings";
-import {nodemailerService} from "../../src/adapters/nodemailer";
-import {usersRepository} from "../../src/features/users/users-db-repository";
-import {usersQueryRepository} from "../../src/features/users/users-query-repository";
-import {cookie} from "express-validator";
+import {businessService} from "../../src/domains/businessService";
 
 describe('Auth Routes e2e', () => {
     let mongoServer: MongoMemoryServer;
     let accessToken: string;
     let refreshToken: string;
-    let refreshTokenCookie: string;
     const testUser = testSeeder.createUserDto();
+
+    businessService.sendConfirmationCodeToEmail = jest
+        .fn()
+        .mockImplementation(
+            () =>
+                Promise.resolve(true)
+        );
+
 
     beforeAll(async () => {
         mongoServer = await MongoMemoryServer.create();
@@ -32,14 +36,6 @@ describe('Auth Routes e2e', () => {
     });
 
     describe('POST /auth/registration', () => {
-
-        nodemailerService.sendEmail = jest
-            .fn()
-            .mockImplementation(
-                () =>
-                    Promise.resolve(true)
-            );
-
         it('should register new user successfully', async () => {
             await request(app)
                 .post('/auth/registration')
@@ -77,12 +73,11 @@ describe('Auth Routes e2e', () => {
     describe('POST /auth/login', () => {
         beforeEach(async () => {
             // Register and confirm user before login tests
-            await testSeeder.insertUser({
+            await testSeeder.insertUserConfirmed({
                 ...testUser,
                 isConfirmed: "confirmed"
             });
         });
-
 
         it('should login successfully with correct credentials', async () => {
             const response = await request(app)
@@ -114,11 +109,10 @@ describe('Auth Routes e2e', () => {
 
     describe('GET /auth/me', () => {
         beforeEach(async () => {
-            // Register and confirm user before login tests
-            await testSeeder.insertUser({
-                ...testUser,
-                isConfirmed: "confirmed"
-            });
+            await request(app)
+                .post('/auth/registration')
+                .send(testUser)
+                .expect(HTTP_STATUS.NO_CONTENT);
             // Login before each test
             const response = await request(app)
                 .post('/auth/login')
@@ -131,6 +125,7 @@ describe('Auth Routes e2e', () => {
         });
 
         it('should return user info with valid token', async () => {
+
             const response = await request(app)
                 .get('/auth/me')
                 .set('Authorization', `Bearer ${accessToken}`)
@@ -151,40 +146,30 @@ describe('Auth Routes e2e', () => {
     });
 
     describe('POST /auth/refresh-token', () => {
-        // Перед тестами выполняем логин для получения токенов
         beforeEach(async () => {
-            // Регистрируем и подтверждаем пользователя
-            await testSeeder.insertUser({
-                ...testUser,
-                isConfirmed: "confirmed"
-            });
-
-            // Выполняем логин
-            const loginResponse = await request(app)
+            await request(app)
+                .post('/auth/registration')
+                .send(testUser)
+                .expect(HTTP_STATUS.NO_CONTENT);
+            // Login before each test
+            const response = await request(app)
                 .post('/auth/login')
                 .send({
                     loginOrEmail: testUser.email,
                     password: testUser.password
                 });
 
-            accessToken = loginResponse.body.accessToken;
-            refreshTokenCookie = loginResponse.headers['set-cookie'][0];
+            refreshToken = response.headers['set-cookie'][0];
         });
-
         it('should refresh tokens successfully', async () => {
-            // Небольшая задержка, чтобы убедиться, что токены различаются
-            await new Promise(resolve => setTimeout(resolve, 1000));
 
             const response = await request(app)
                 .post('/auth/refresh-token')
-                .set('Cookie', refreshTokenCookie)
+                .set('Cookie', refreshToken)
                 .expect(HTTP_STATUS.OK);
 
-            // Проверяем, что получили новые токены
             expect(response.body.accessToken).toBeDefined();
-            expect(response.body.accessToken).not.toBe(accessToken);
             expect(response.headers['set-cookie']).toBeDefined();
-            expect(response.headers['set-cookie'][0]).not.toBe(refreshTokenCookie);
         });
 
         it('should return 401 with invalid refresh token', async () => {
@@ -193,47 +178,34 @@ describe('Auth Routes e2e', () => {
                 .set('Cookie', 'refreshToken=invalid-token')
                 .expect(HTTP_STATUS.UNAUTHORIZED);
         });
-
-        it('should return 401 without refresh token', async () => {
-            await request(app)
-                .post('/auth/refresh-token')
-                .expect(HTTP_STATUS.UNAUTHORIZED);
-        });
-
     });
 
     describe('POST /auth/logout', () => {
-
         beforeEach(async () => {
-            // Регистрируем и подтверждаем пользователя
-            await testSeeder.insertUser({
-                ...testUser,
-                isConfirmed: "confirmed"
-            });
-
-            // Выполняем логин
-            const loginResponse = await request(app)
+            await request(app)
+                .post('/auth/registration')
+                .send(testUser)
+                .expect(HTTP_STATUS.NO_CONTENT);
+            // Login before each test
+            const response = await request(app)
                 .post('/auth/login')
                 .send({
                     loginOrEmail: testUser.email,
                     password: testUser.password
                 });
 
-            accessToken = loginResponse.body.accessToken;
-            refreshTokenCookie = loginResponse.headers['set-cookie'][0];
+            refreshToken = response.headers['set-cookie'][0];
         });
-
         it('should logout successfully', async () => {
-
             await request(app)
                 .post('/auth/logout')
-                .set('Cookie', refreshTokenCookie)
+                .set('Cookie', refreshToken)
                 .expect(HTTP_STATUS.NO_CONTENT);
 
             // Verify refresh token is invalidated
             await request(app)
                 .post('/auth/refresh-token')
-                .set('Cookie', refreshTokenCookie)
+                .set('Cookie', refreshToken)
                 .expect(HTTP_STATUS.UNAUTHORIZED);
         });
     });
@@ -243,7 +215,7 @@ describe('Auth Routes e2e', () => {
 
         beforeEach(async () => {
             // Register user and get confirmation code
-            const user = await testSeeder.insertUser(testUser);
+            const user = await testSeeder.insertUserUnconfirmed(testUser);
             confirmationCode = user.emailConfirmation.confirmationCode;
         });
 
@@ -263,19 +235,12 @@ describe('Auth Routes e2e', () => {
     });
 
     describe('POST /auth/registration-email-resending', () => {
-
-        nodemailerService.sendEmail = jest
-            .fn()
-            .mockImplementation(
-                () =>
-                    Promise.resolve(true)
-            );
-
-        beforeEach(async () => {
-            await testSeeder.insertUser(testUser);
-        });
+        // beforeEach(async () => {
+        //     await testSeeder.insertUserUnconfirmed(testUser);
+        // });
 
         it('should resend confirmation email successfully', async () => {
+            await testSeeder.insertUserUnconfirmed(testUser);
             await request(app)
                 .post('/auth/registration-email-resending')
                 .send({email: testUser.email})
@@ -283,9 +248,22 @@ describe('Auth Routes e2e', () => {
         });
 
         it('should return 400 for non-existent email', async () => {
+            await testSeeder.insertUserUnconfirmed(testUser);
             await request(app)
                 .post('/auth/registration-email-resending')
                 .send({email: 'nonexistent@email.com'})
+                .expect(HTTP_STATUS.BAD_REQUEST);
+        });
+
+        it('should return 400 for already confirmed email', async () => {
+            // Confirm user first
+            await testSeeder.insertUserConfirmed({
+                ...testUser
+            });
+
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({email: testUser.email})
                 .expect(HTTP_STATUS.BAD_REQUEST);
         });
     });

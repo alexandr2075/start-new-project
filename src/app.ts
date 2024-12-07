@@ -9,11 +9,16 @@ import {usersRouter} from "./features/users/users-router";
 import {authRouter} from "./features/auth-login/auth-router";
 import {commentsRouter} from "./features/comments/comments-router";
 import cookieParser from "cookie-parser";
+import {securityRouter} from "./features/security/security-router";
+import {clientMetaMiddleware} from "./middlewares/client-meta.middleware";
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body и query во всех реквестах
 app.use(cors()) // разрешить любым фронтам делать запросы на наш бэк
 app.use(cookieParser())
+
+app.set('trust proxy', true);
+app.use('/', clientMetaMiddleware);
 
 app.get('/', (req, res) => {
     // эндпоинт, который будет показывать на верселе какая версия бэкэнда сейчас залита
@@ -29,5 +34,4 @@ app.use(SETTINGS.PATH.USERS, usersRouter);
 app.use(SETTINGS.PATH.COMMENTS, commentsRouter);
 app.use(SETTINGS.PATH.AUTH, authRouter);
 app.use(SETTINGS.PATH.TESTING_ALL_DATA, testingRouter);
-// app.get(SETTINGS.PATH.VIDEOS, getVideosController)
-// app.use(SETTINGS.PATH.VIDEOS, videosRouter)
+app.use('/security', securityRouter);

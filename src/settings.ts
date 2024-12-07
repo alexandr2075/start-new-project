@@ -38,5 +38,6 @@ export enum HTTP_STATUS {
     OK = 200,
     CREATED = 201,
     NO_CONTENT = 204,
+    TOO_MANY_REQUESTS = 429,
 
 }

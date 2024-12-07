@@ -40,7 +40,6 @@ export type UserDBModel = {
         expirationDate?: Date,
         isConfirmed: 'confirmed' | 'unconfirmed'
     }
-    iatVersionToken?: string;
 }
 
 export type UsersViewModel = {
@@ -58,4 +57,11 @@ export type UserInputModel = {
     code?: UUID
     isConfirmed?: 'confirmed' | 'unconfirmed'
     expirationDate?: Date;
+}
+
+export type LoginInputModel = {
+    loginOrEmail: string;
+    password: string;
+    ip?: string;
+    userAgent?: string;
 }

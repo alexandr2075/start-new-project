@@ -1,7 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {jwtService} from "../../../helpers/jwtService";
 import {usersRepository} from "../../users/users-db-repository";
-import {IdType} from "../../../types/id";
 import {SETTINGS} from "../../../settings";
 
 export const accessTokenGuard = async (req: Request,
@@ -22,10 +21,10 @@ export const accessTokenGuard = async (req: Request,
     const payload = await jwtService.verifyToken(token, SETTINGS.SECRET_KEY_FOR_ACCESS_TOKEN);
 
     if (payload) {
-        if (Math.floor(new Date().getTime() / 1000) >= payload.exp) {
-            res.sendStatus(401);
-            return
-        }
+        // if (Math.floor(new Date().getTime() / 1000) >= payload.exp) {
+        //     res.sendStatus(401);
+        //     return
+        // }
         const user = await usersRepository.doesExistById(payload.userId);
         if (!user) {
             res.sendStatus(401);

@@ -1,9 +1,18 @@
-import {IdType} from "./id";
+interface ClientMeta {
+    ip: string;
+    userAgent: string;
+}
+
+interface UserDevice {
+    id: string,
+    deviceId?: string
+}
 
 declare global {
     declare namespace Express {
         export interface Request {
-            user: { id: string };
+            user: UserDevice;
+            clientMeta: ClientMeta;
         }
     }
 }

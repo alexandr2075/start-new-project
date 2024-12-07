@@ -15,16 +15,18 @@ import {IdType} from "../../types/id";
 import {usersQueryRepository} from "../users/users-query-repository";
 import {checkRefreshTokenCookieMiddleware} from "./middlewaresAuth";
 import {refreshTokenGuard} from "./guards/refresh.token.guard";
+import {requestCountMiddleware} from "../../middlewares/request-count.middleware";
 
 export const authRouter = express.Router();
 
 //auth user
 authRouter.post("/login",
+    requestCountMiddleware,
     checkIsStringMiddleware,
     checkPasswordMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const tokens = await authService.authLoginUser(req.body)
+        const tokens = await authService.authLoginUser(req.body, req.clientMeta)
         if (tokens) {
             res.cookie('refreshToken', tokens.refreshToken, {httpOnly: true, secure: true})
             res.status(HTTP_STATUS.OK).send({accessToken: tokens.accessToken})
@@ -35,11 +37,13 @@ authRouter.post("/login",
 
 //refresh-token
 authRouter.post("/refresh-token",
-    checkRefreshTokenCookieMiddleware,
+    // checkRefreshTokenCookieMiddleware,
+    requestCountMiddleware,
     refreshTokenGuard,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
         const refreshTokenFromCookies = req.cookies.refreshToken
+        console.log('refreshTokenFromCookies:', refreshTokenFromCookies)
         const tokens = await authService.authUpdatePairTokens(refreshTokenFromCookies)
 
         if (tokens) {
@@ -72,7 +76,6 @@ authRouter.get("/me",
     async (req: RequestWithUserId<IdType>,
            res: Response) => {
         const userId = req.user.id
-
         if (!userId) {
             res.sendStatus(401);
             return
@@ -92,6 +95,7 @@ authRouter.get("/me",
 
 //registration user with confirmation code
 authRouter.post("/registration",
+    requestCountMiddleware,
     userValidator,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
@@ -105,6 +109,7 @@ authRouter.post("/registration",
     })
 
 authRouter.post("/registration-email-resending",
+    requestCountMiddleware,
     checkEmailMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
@@ -119,6 +124,7 @@ authRouter.post("/registration-email-resending",
 
 //check user with confirmation code
 authRouter.post("/registration-confirmation",
+    requestCountMiddleware,
     checkIsValidConfCodeMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {

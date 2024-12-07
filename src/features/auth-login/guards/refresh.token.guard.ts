@@ -1,8 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {jwtService} from "../../../helpers/jwtService";
-import {usersRepository} from "../../users/users-db-repository";
-import {IdType} from "../../../types/id";
 import {SETTINGS} from "../../../settings";
+import {securityRepository} from "../../security/security-repository";
 
 export const refreshTokenGuard = async (req: Request,
                                         res: Response,
@@ -17,12 +16,13 @@ export const refreshTokenGuard = async (req: Request,
         res.sendStatus(401);
         return
     }
-    if (Math.floor(new Date().getTime() / 1000) >= payload.exp) {
+    const devices = await securityRepository.findDevicesByUserIdIat(payload.userId, payload.iat);
+    console.log('devices', devices);
+    if (!devices) {
         res.sendStatus(401);
         return
     }
-
-    req.user = {id: payload.userId}
+    req.user = {id: payload.userId, deviceId: payload.deviceId}
     return next();
 }
 
