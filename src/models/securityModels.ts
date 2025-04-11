@@ -3,13 +3,13 @@ export type DeviceDBType = {
     userId: string;
     ip: string;
     title: string;
-    lastActiveDate: number,// user-agent
-    expirationDate: number;
+    lastActiveDate: Date,
+    expirationDate: Date;
 }
 
 export type DeviceViewModel = {
     ip: string;
     title: string;
-    lastActiveDate: string;
+    lastActiveDate: Date;
     deviceId: string;
 }

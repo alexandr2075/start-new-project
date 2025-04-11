@@ -1,33 +1,32 @@
-import {db} from "../../db/db";
 import {WithId} from "mongodb";
 import type {DeviceDBType} from "../../models/securityModels";
+import {SecurityModel} from "../../domains/security.entity";
 
 export const securityRepository = {
-    async createDevice(device: DeviceDBType): Promise<boolean> {
-        const result = await db.getCollections().security_devicesCollection
-            .insertOne(device);
-        return result.acknowledged;
+    async createDevice(device: DeviceDBType) {
+        return SecurityModel
+            .create(device);
     },
 
     async findDevices(userId: string): Promise<DeviceDBType[]> {
-        return db.getCollections().security_devicesCollection
+        return SecurityModel
             .find({userId})
-            .toArray();
+
     },
 
     async findDevicesByUserIdIat(userId: string, iat: number): Promise<WithId<DeviceDBType> | null> {
-        return db.getCollections().security_devicesCollection
+        return SecurityModel
             .findOne({userId, lastActiveDate: iat})
 
     },
 
     async findDeviceById(deviceId: string): Promise<DeviceDBType | null> {
-        return db.getCollections().security_devicesCollection
+        return SecurityModel
             .findOne({deviceId});
     },
 
     async updateIat(deviceId: string, iat: number): Promise<boolean> {
-        const result = await db.getCollections().security_devicesCollection
+        const result = await SecurityModel
             .updateOne(
                 {deviceId},
                 {$set: {lastActiveDate: iat}}
@@ -36,13 +35,13 @@ export const securityRepository = {
     },
 
     async deleteDevice(deviceId: string): Promise<boolean> {
-        const result = await db.getCollections().security_devicesCollection
+        const result = await SecurityModel
             .deleteOne({deviceId});
         return result.deletedCount === 1;
     },
 
     async deleteOtherDevices(userId: string, currentDeviceId: string): Promise<boolean> {
-        const result = await db.getCollections().security_devicesCollection
+        const result = await SecurityModel
             .deleteMany({
                 userId,
                 deviceId: {$ne: currentDeviceId}
@@ -51,7 +50,7 @@ export const securityRepository = {
     },
 
     async deleteExpiredDevices(): Promise<boolean> {
-        const result = await db.getCollections().security_devicesCollection
+        const result = await SecurityModel
             .deleteMany({
                 expirationDate: {$lt: new Date().getTime()}
             });

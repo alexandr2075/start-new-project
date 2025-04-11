@@ -3,8 +3,8 @@ import {HTTP_STATUS} from "../../settings";
 import {usersRepository} from "../users/users-db-repository";
 import {postsRepository} from "./posts-db-repository";
 import {PostInputModel, PostViewModel} from "../../models/postsModels";
-import {mapToOut} from "../../helpers/mapper";
 import {commentsRepository} from "../comments/comments-db-repository";
+import {CommentInputModel, MyStatus} from "../../models/commentModel";
 
 export const postsService = {
 //create new post
@@ -27,7 +27,7 @@ export const postsService = {
             content,
             blogId,
             blogName: blog.name,
-            createdAt: new Date().toISOString(),
+            createdAt: new Date(),
         }
         const createdPost = await postsRepository.createPost(newPost)
         if (!createdPost) {
@@ -37,7 +37,15 @@ export const postsService = {
         }
         return {
             status: HTTP_STATUS.CREATED,
-            data: mapToOut(createdPost)
+            data: {
+                title: createdPost.title,
+                shortDescription: createdPost.shortDescription,
+                content: createdPost.content,
+                blogId: createdPost.blogId,
+                createdAt: createdPost.createdAt,
+                id: createdPost._id,
+            }
+            // data: mapToOut(createdPost)
         }
     },
 
@@ -84,14 +92,21 @@ export const postsService = {
             }
         }
 
-        const newComment = {
+        const newComment: CommentInputModel = {
             content,
             commentatorInfo: {
                 userId: userId,
                 userLogin: user.login,
             },
             createdAt: new Date().toISOString(),
-            postId
+            postId,
+            likesInfo: {
+                userIdWhoLiked: [],
+                userIdWhoDisliked: [],
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: MyStatus.None
+            }
         }
         const result = await commentsRepository.createCommentByPostId(newComment);
         if (!result) {
@@ -101,7 +116,21 @@ export const postsService = {
         }
         return {
             status: HTTP_STATUS.OK,
-            data: mapToOut(result)
+            // data: mapToOut(result)
+            data: {
+                id: result._id,
+                content: result.content,
+                commentatorInfo: {
+                    userId: result.commentatorInfo.userId,
+                    userLogin: result.commentatorInfo.userLogin,
+                },
+                createdAt: result.createdAt,
+                likesInfo: {
+                    likesCount: result.likesInfo.likesCount,
+                    dislikesCount: result.likesInfo.dislikesCount,
+                    myStatus: result.likesInfo.myStatus,
+                }
+            }
         }
     },
 

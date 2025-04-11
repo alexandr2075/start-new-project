@@ -1,7 +1,7 @@
 import {QueryUserModel, UserInputDBModel, UsersViewModel, UserViewModel} from "../../models/usersModels";
 import {paginationQueriesUsers} from "../../helpers/pagination-queries-users";
 import {ObjectId, WithId} from "mongodb";
-import {db} from "../../db/db";
+import {UserModel} from "../../domains/user.entity";
 
 export const usersQueryRepository = {
     async getAllUsers(query: QueryUserModel): Promise<UsersViewModel> {
@@ -15,11 +15,10 @@ export const usersQueryRepository = {
             }
         }
 
-        const items = await db.getCollections().usersCollection.find(search)
-            .sort(defaultValues.sortBy, defaultValues.sortDirection)
+        const items = await UserModel.find(search)
+            .sort({[defaultValues.sortBy]: defaultValues.sortDirection})
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
-            .toArray()
 
         const itemsWithId = items.map((user) => {
             return {
@@ -29,7 +28,7 @@ export const usersQueryRepository = {
                 createdAt: user.createdAt
             }
         })
-        const totalCount = await db.getCollections().usersCollection.countDocuments(search)
+        const totalCount = await UserModel.countDocuments(search)
 
         return {
             pagesCount: Math.ceil(totalCount / defaultValues.pageSize),
@@ -41,14 +40,14 @@ export const usersQueryRepository = {
     },
 
     async getUserByObjectId(_id: ObjectId) {
-        const user = await db.getCollections().usersCollection
+        const user = await UserModel
             .findOne({_id}, {projection: {password: 0}})
         return user ? this._getInView(user) : null;
     },
 
     async findById(id: string): Promise<UserViewModel | null> {
         if (!this._checkObjectId(id)) return null;
-        const user = await db.getCollections().usersCollection.findOne({_id: new ObjectId(id)});
+        const user = await UserModel.findOne({_id: new ObjectId(id)});
         return user ? this._getInView(user) : null;
     },
     _getInView(user: WithId<UserInputDBModel>): UserViewModel {

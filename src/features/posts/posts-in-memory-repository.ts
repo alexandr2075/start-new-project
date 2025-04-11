@@ -3,9 +3,6 @@ import {blogsRepository} from "../blogs/blogs-in-memory-repository";
 import {PostInputModel, PostViewModel} from "../../models/postsModels";
 
 export const postsRepository = {
-    getAllPosts(): PostViewModel[] {
-        return dbPosts
-    },
 
     async createPost(post: PostInputModel) {
         const {title, shortDescription, content, blogId} = post;

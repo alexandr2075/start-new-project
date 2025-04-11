@@ -9,10 +9,12 @@ interface UserDevice {
 }
 
 declare global {
-    declare namespace Express {
-        export interface Request {
+    namespace Express {
+        interface Request {
             user: UserDevice;
             clientMeta: ClientMeta;
         }
     }
 }
+
+export {};

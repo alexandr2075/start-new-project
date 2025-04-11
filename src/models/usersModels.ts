@@ -24,7 +24,7 @@ export type UserInputDBModel = {
     createdAt: Date;
     emailConfirmation: {
         confirmationCode: UUID,
-        expirationDate?: Date,
+        expirationDate: Date,
         isConfirmed: 'confirmed' | 'unconfirmed'
     }
 }

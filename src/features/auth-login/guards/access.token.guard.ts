@@ -19,7 +19,6 @@ export const accessTokenGuard = async (req: Request,
     }
 
     const payload = await jwtService.verifyToken(token, SETTINGS.SECRET_KEY_FOR_ACCESS_TOKEN);
-
     if (payload) {
         // if (Math.floor(new Date().getTime() / 1000) >= payload.exp) {
         //     res.sendStatus(401);

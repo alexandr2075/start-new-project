@@ -1,31 +1,65 @@
 import {CommentInputModel} from "../../models/commentModel";
 import {ObjectId} from "mongodb";
-import {mapToOut} from "../../helpers/mapper";
-import {db} from "../../db/db";
+import {CommentModel} from "../../domains/comment.entity";
 
 export const commentsRepository = {
 
     async getCommentById(id: string) {
-        const result = await db.getCollections().commentsCollection.findOne({_id: new ObjectId(id)})
-        if (result) return mapToOut(result)
+        return CommentModel.findById(id)
+        // if (result) return mapToOut(result)
 
     },
 
     async updateCommentByCommentId(commentId: string, content: string) {
-        const result = await db.getCollections().commentsCollection
+        const result = await CommentModel
             .updateOne({_id: new ObjectId(commentId)}, {$set: {content: content}});
         return result.matchedCount === 1
     },
 
+    async updateLikeStatusByCommentId(commentId: string, likeStatus: string, userIdForLikeStatus: string) {
+        const result = await Promise.all([
+            CommentModel
+                .updateOne({_id: new ObjectId(commentId)}, {$pull: {'likesInfo.userIdWhoDisliked': userIdForLikeStatus}}),
+            CommentModel
+                .updateOne({_id: new ObjectId(commentId)}, {$push: {'likesInfo.userIdWhoLiked': userIdForLikeStatus}})
+        ])
+        const modifiedCount = result[0].modifiedCount + result[1].modifiedCount;
+        return modifiedCount > 0;
+    },
+
+    async updateDislikeStatusByCommentId(commentId: string, likeStatus: string, userIdForLikeStatus: string) {
+        const result = await Promise.all([
+            CommentModel
+                .updateOne({_id: new ObjectId(commentId)}, {$pull: {'likesInfo.userIdWhoLiked': userIdForLikeStatus}}),
+            CommentModel
+                .updateOne({_id: new ObjectId(commentId)}, {$push: {'likesInfo.userIdWhoDisliked': userIdForLikeStatus}})
+        ])
+        const modifiedCount = result[0].modifiedCount + result[1].modifiedCount;
+        return modifiedCount > 0;
+    },
+
+    async setNoneStatusByCommentId(commentId: string, likeStatus: string, userIdForLikeStatus: string) {
+        const result = await Promise.all([
+            CommentModel.updateOne(
+                {_id: new ObjectId(commentId)},
+                {$pull: {'likesInfo.userIdWhoLiked': userIdForLikeStatus}}
+            ),
+            CommentModel.updateOne(
+                {_id: new ObjectId(commentId)},
+                {$pull: {'likesInfo.userIdWhoDisliked': userIdForLikeStatus}}
+            )
+        ]);
+        const modifiedCount = result[0].modifiedCount + result[1].modifiedCount;
+        return modifiedCount > 0;
+    },
+
     async deleteCommentByCommentId(id: string) {
-        const result = await db.getCollections().commentsCollection.deleteOne({_id: new ObjectId(id)});
+        const result = await CommentModel.deleteOne({_id: new ObjectId(id)});
         return result.deletedCount === 1
     },
 
     async createCommentByPostId(newComment: CommentInputModel) {
-        const insertAcknow = await db.getCollections().commentsCollection.insertOne(newComment);
-        return await db.getCollections().commentsCollection.findOne({_id: new Object(insertAcknow.insertedId)})
-
+        return CommentModel.create(newComment);
     },
 
 

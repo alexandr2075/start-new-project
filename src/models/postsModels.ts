@@ -12,8 +12,8 @@ export type PostViewModel = {
     shortDescription: string;
     content: string;
     blogId: string;
-    blogName: string | undefined;
-    createdAt: string;
+    blogName: string;
+    createdAt: Date;
 }
 
 export type PostViewModelWithId = {

@@ -7,7 +7,6 @@ import {UserDBModel, UserInputDBModel, UserInputModel} from "../../models/usersM
 import {ErrMessAndField} from "../../types/result";
 import {securityService} from "../security/security-service";
 import {usersRepository} from "../users/users-db-repository";
-import type {ClientMeta} from "../../types";
 import type {DeviceDBType} from "../../models/securityModels";
 import {securityRepository} from "../security/security-repository";
 
@@ -20,7 +19,7 @@ type LoginInputModel = {
 
 export const authService = {
 
-    async authLoginUser(loginData: LoginInputModel, clientMeta: ClientMeta) {
+    async authLoginUser(loginData: LoginInputModel) {
         const user = await this._validateUser(loginData);
         if (!user) return null;
         const deviceId = randomUUID();
@@ -30,8 +29,8 @@ export const authService = {
         const device: DeviceDBType = {
             deviceId,
             userId: user._id.toString(),
-            ip: clientMeta.ip || '',
-            title: clientMeta.userAgent || 'Unknown device',
+            ip: loginData.ip || '',
+            title: loginData.userAgent || 'Unknown device',
             lastActiveDate: payloadRT.iat,
             expirationDate: payloadRT.exp
         };
@@ -101,7 +100,12 @@ export const authService = {
 
         const confCode: UUID = newUser.emailConfirmation.confirmationCode
 
-        await businessService.sendConfirmationCodeToEmail(user.email, confCode)
+        const htmlEmail = `<h1>Thanks for your registration</h1>
+                           <p>To finish registration please follow the link below:
+                           <a href="https://it-incubator.io/confirm-email?code=${confCode}">complete registration</a>
+                           </p>`;
+
+        await businessService.sendCodeToEmail(user.email, htmlEmail)
 
         return ({
             status: 204
@@ -110,7 +114,6 @@ export const authService = {
 
     async authRegistrationEmailResendUser(email: string) {
         const user: UserDBModel | null = await usersRepository.getUserByEmail(email)
-        console.log('user', user)
         const errors: ErrMessAndField[] = []
         if (!user) {
             errors.push({
@@ -130,10 +133,16 @@ export const authService = {
         })
         const newConfirmationCode: UUID = randomUUID()
         if (user) {
-            const updatedUser = await usersRepository
+            await usersRepository
                 .updateUser(user._id, 'emailConfirmation.confirmationCode', newConfirmationCode)
+
+            const htmlEmail = `<h1>Password recovery</h1>
+                           <p>To finish password recovery please follow the link below:
+                           <a href="https://somesite.com/password-recovery?recoveryCode=${newConfirmationCode}">recovery password</a>
+                           </p>`;
+
             await businessService
-                .sendConfirmationCodeToEmail(user!.email, updatedUser!.emailConfirmation.confirmationCode)
+                .sendCodeToEmail(user!.email, htmlEmail)
 
         }
 
@@ -141,7 +150,6 @@ export const authService = {
             status: 204
         })
     },
-
 
     async authRegConfUser(code: string) {
         const user = await usersRepository.getUserByConfCode(code)
@@ -183,6 +191,34 @@ export const authService = {
         return {
             status: 204,
             data: 'Email was verified. Account was activated'
+        }
+    },
+
+    async authRecoveryPassword(email: string) {
+        const user = await usersRepository.getUserByEmail(email)
+        if (user) {
+            const updatedUser = await usersRepository.updateConfirmationCode(user._id)
+            const code = updatedUser.emailConfirmation.confirmationCode
+            const htmlEmail = `<h1>Password recovery</h1>
+                           <p>To finish password recovery  please follow the link below:
+                           <a href="https://it-incubator.io/confirm-email?recoveryCode=${code}">recovery password</a>
+                           </p>`;
+
+            await businessService.sendCodeToEmail(user.email, htmlEmail)
+        }
+    },
+
+    async authChangePassword(newPassword: string, recoveryCode: string) {
+        const user = await usersRepository.getUserByConfCode(recoveryCode)
+        if (user && user.emailConfirmation.confirmationCode === recoveryCode
+            && user.emailConfirmation.expirationDate > new Date()
+        ) {
+            const hashPassword = await genHashPassword(newPassword)
+            await usersRepository
+                .updateUser(user.id, 'password', hashPassword)
+            return true
+        } else {
+            return false
         }
     },
 

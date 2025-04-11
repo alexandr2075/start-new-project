@@ -5,6 +5,8 @@ import {
     checkEmailMiddleware,
     checkIsStringMiddleware,
     checkIsValidConfCodeMiddleware,
+    checkIsValidRecCodeMiddleware,
+    checkNewPasswordMiddleware,
     checkPasswordMiddleware,
     userValidator
 } from "../users/middlewaresUsers";
@@ -26,7 +28,7 @@ authRouter.post("/login",
     checkPasswordMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
-        const tokens = await authService.authLoginUser(req.body, req.clientMeta)
+        const tokens = await authService.authLoginUser({...req.body, ...req.clientMeta})
         if (tokens) {
             res.cookie('refreshToken', tokens.refreshToken, {httpOnly: true, secure: true})
             res.status(HTTP_STATUS.OK).send({accessToken: tokens.accessToken})
@@ -133,5 +135,30 @@ authRouter.post("/registration-confirmation",
             res.status(HTTP_STATUS.NO_CONTENT).send(result.data)
         } else {
             res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
+        }
+    })
+
+//send recovery code to email
+authRouter.post("/password-recovery",
+    requestCountMiddleware,
+    checkEmailMiddleware,
+    sendAccumulatedErrorsMiddleware,
+    async (req: Request, res: Response) => {
+        await authService.authRecoveryPassword(req.body.email)
+        res.status(HTTP_STATUS.NO_CONTENT).send('ok')
+    })
+
+//new password
+authRouter.post("/new-password",
+    requestCountMiddleware,
+    checkNewPasswordMiddleware,
+    checkIsValidRecCodeMiddleware,
+    sendAccumulatedErrorsMiddleware,
+    async (req: Request, res: Response) => {
+        const result = await authService.authChangePassword(req.body.newPassword, req.body.recoveryCode)
+        if (result) {
+            res.sendStatus(HTTP_STATUS.NO_CONTENT)
+        } else {
+            res.status(HTTP_STATUS.BAD_REQUEST)
         }
     })

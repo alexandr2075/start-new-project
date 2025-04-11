@@ -1,17 +1,16 @@
 import {RequestAttemptDBType} from "../../models/requestModels";
-import {db} from "../../db/db";
+import {RequestModel} from "../../domains/request.entity";
 
 export const requestsRepository = {
-    async saveRequest(attempt: RequestAttemptDBType): Promise<boolean> {
-        const result = await db.getCollections().requestsCollection
-            .insertOne(attempt);
-        return result.acknowledged;
+    async saveRequest(attempt: RequestAttemptDBType) {
+        return RequestModel
+            .create(attempt);
     },
 
     async countRecentAttempts(ip: string, url: string, seconds: number): Promise<number> {
         const dateFrom = new Date(new Date().getTime() - (seconds * 1000));
 
-        return db.getCollections().requestsCollection
+        return RequestModel
             .countDocuments({
                 ip,
                 url,

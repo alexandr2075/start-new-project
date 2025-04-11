@@ -1,5 +1,4 @@
 import {ObjectId, SortDirection} from "mongodb";
-import {IdType} from "../types/id";
 
 export type CommentatorInfo = {
     userId: string
@@ -11,6 +10,21 @@ export type CommentInputModel = {
     commentatorInfo: CommentatorInfo
     createdAt: string
     postId: string
+    likesInfo: LikesInfo
+}
+
+export enum MyStatus {
+    None = "None",
+    Like = "Like",
+    Dislike = "Dislike",
+}
+
+export type LikesInfo = {
+    userIdWhoLiked: Array<string>,
+    userIdWhoDisliked: Array<string>
+    likesCount: number,
+    dislikesCount: number,
+    myStatus: MyStatus.None | MyStatus.Like | MyStatus.Dislike,
 }
 
 export type CommentViewModelInDB = {
@@ -22,10 +36,18 @@ export type CommentViewModelInDB = {
 }
 
 export type CommentViewModel = {
-    id: string
-    content: string
-    commentatorInfo: CommentatorInfo
-    createdAt: string
+    id: ObjectId,
+    content: string,
+    commentatorInfo: {
+        userId: string,
+        userLogin: string
+    },
+    createdAt: string,
+    likesInfo: {
+        likesCount: number,
+        dislikesCount: number,
+        myStatus: string
+    }
 }
 
 export type CommentsViewModel = {

@@ -6,14 +6,13 @@ export type BlogReqModel = {
     websiteUrl: string
 }
 
-// export type BlogInputModel = {
-//     id: string;
-//     name: string
-//     description: string
-//     websiteUrl: string
-//     createdAt: Date;
-//     isMembership: boolean;
-// }
+export type BlogInputModel = {
+    name: string
+    description: string
+    websiteUrl: string
+    createdAt: Date;
+    isMembership: boolean;
+}
 
 export type BlogViewModel = {
     id?: string;

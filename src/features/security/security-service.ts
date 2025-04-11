@@ -26,7 +26,7 @@ export const securityService = {
         return devices.map(d => ({
             ip: d.ip,
             title: d.title,
-            lastActiveDate: new Date(d.lastActiveDate * 1000).toISOString(),
+            lastActiveDate: d.lastActiveDate,
             deviceId: d.deviceId
         }));
     },

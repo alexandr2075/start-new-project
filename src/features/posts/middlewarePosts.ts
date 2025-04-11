@@ -1,8 +1,6 @@
 import {body, param} from "express-validator";
 import {ObjectId} from "mongodb";
 import {blogsRepository} from "../blogs/blogs-db-repository";
-import {HTTP_STATUS} from "../../settings";
-import {postsService} from "./posts-service";
 import {postsQueryRepository} from "./posts-query-repository";
 
 export const checkTitleMiddleware = body('title').isString().withMessage('not string').trim().isLength({
@@ -16,7 +14,7 @@ export const checkBlogIdMiddleware = body('blogId')
     .withMessage('blogId must be a string')
     .custom(async (value) => {
         if (!ObjectId.isValid(value)) {
-            throw new Error('blogId is not a valid ObjectId');
+            throw new Error('blogId is not a valid ObjectIdppppp');
         }
         const blog = await blogsRepository.getBlogById(value);
         if (!blog) {
@@ -31,7 +29,7 @@ export const checkIdParamMiddleware = param('id')
     .withMessage('id must be a string')
     .custom(async (value) => {
         if (!ObjectId.isValid(value)) {
-            throw new Error('id is not a valid ObjectId');
+            throw new Error('id is not a valid ObjectIdgggg');
         }
         const post = await postsQueryRepository.getPostById(value);
         if (!post) {
@@ -49,7 +47,6 @@ export const checkContentMiddleware = body('content').isString().withMessage('no
 export const checkContentCommentMiddleware = body('content').isString().withMessage('not string')
     .trim()
     .isLength({min: 20, max: 300}).withMessage('more then 300 or 20');
-
 
 export const postValidator = [
     checkTitleMiddleware,

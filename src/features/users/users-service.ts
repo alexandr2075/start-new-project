@@ -1,10 +1,8 @@
 import {UserInputDBModel, UserInputModel} from "../../models/usersModels";
 import {genHashPassword} from "../../helpers/genHashPassword";
 import {usersRepository} from "./users-db-repository";
-import {ErrMessAndField, Result} from "../../types/result";
-import {InsertOneResult} from "mongodb";
+import {ErrMessAndField} from "../../types/result";
 import {randomUUID} from "node:crypto";
-import {add} from "date-fns";
 
 export const usersService = {
 
@@ -38,6 +36,7 @@ export const usersService = {
             createdAt: new Date(),
             emailConfirmation: {
                 confirmationCode: randomUUID(),
+                expirationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
                 isConfirmed: 'unconfirmed',
             }
         }

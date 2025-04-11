@@ -1,6 +1,5 @@
 import {blogsRepository} from "./blogs-db-repository";
 import {BlogReqModel, BlogViewModel} from "../../models/blogsModels";
-import {mapToOut} from "../../helpers/mapper";
 
 export const blogsService = {
 
@@ -14,15 +13,24 @@ export const blogsService = {
             isMembership: false
         }
         const createdBlog = await blogsRepository.createBlog(newBlog)
-        if (!createdBlog) return null
-        return mapToOut(createdBlog)
+        // if (!createdBlog) return null
+        // return mapToOut(createdBlog)
+        // const {_id, ...itemWithoutId} = createdBlog
+        return {
+            id: createdBlog._id,
+            name: createdBlog.name,
+            description: createdBlog.description,
+            websiteUrl: createdBlog.websiteUrl,
+            createdAt: createdBlog.createdAt,
+            isMembership: createdBlog.isMembership,
+        }
     },
 
 
     async getBlogById(id: string) {
         const blog = await blogsRepository.getBlogById(id)
         if (!blog) return null
-        return mapToOut(blog)
+        return blog
     },
 
     async updateBlodById(id: string, body: BlogViewModel) {

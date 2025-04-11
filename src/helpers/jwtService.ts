@@ -38,7 +38,6 @@ export const jwtService = {
         try {
 
             const decoded = jwt.verify(token, secretKey);
-            console.log('decoded', decoded);
             if (typeof decoded !== 'object' || decoded === null) {
                 console.error("Invalid token payload structure");
                 return null;

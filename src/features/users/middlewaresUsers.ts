@@ -1,4 +1,4 @@
-import {body, param} from "express-validator";
+import {body} from "express-validator";
 
 export const checkLoginMiddleware = body('login')
     .isString()
@@ -8,6 +8,12 @@ export const checkLoginMiddleware = body('login')
     .matches(/^[a-zA-Z0-9_-]*$/);
 
 export const checkPasswordMiddleware = body('password')
+    .isString()
+    .trim()
+    .isLength({min: 6, max: 20})
+    .withMessage('more than 20 or less than 6')
+
+export const checkNewPasswordMiddleware = body('newPassword')
     .isString()
     .trim()
     .isLength({min: 6, max: 20})
@@ -26,6 +32,7 @@ export const checkIsStringMiddleware = body('loginOrEmail')
     .withMessage('more than 100 or less than 3')
 
 export const checkIsValidConfCodeMiddleware = body('code').isUUID().withMessage('Invalid UUID format')
+export const checkIsValidRecCodeMiddleware = body('recoveryCode').isUUID().withMessage('Invalid UUID format')
 
 export const userValidator = [
     checkLoginMiddleware,

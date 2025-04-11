@@ -10,6 +10,7 @@ import {QueryFilter} from "../../models/queryModel";
 import {postsService} from "./posts-service";
 import {accessTokenGuard} from "../auth-login/guards/access.token.guard";
 import {postsQueryRepository} from "./posts-query-repository";
+import {getDataFromHeader} from "../../helpers/getDataFromHeader";
 
 
 export const postsRouter = express.Router();
@@ -104,6 +105,7 @@ postsRouter.post("/:id/comments",
 //get all comments for specified post
 postsRouter.get("/:id/comments",
     // checkIdParamMiddleware,
+    getDataFromHeader,
     sendAccumulatedErrorsMiddleware,
     async (req: ReqWithParamsAndQuery<{ id: string }, QueryFilter>, res: Response) => {
         const post = await postsRepository.getPostById(req.params.id)
@@ -111,6 +113,6 @@ postsRouter.get("/:id/comments",
             res.sendStatus(HTTP_STATUS.NOT_FOUND)
             return
         }
-        const allComments = await postsQueryRepository.getAllCommentsForSpecifiedPost(req.query, req.params.id)
+        const allComments = await postsQueryRepository.getAllCommentsForSpecifiedPost(req.query, req.params.id, req.user.id)
         res.status(HTTP_STATUS.OK).send(allComments)
     })

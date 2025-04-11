@@ -1,6 +1,5 @@
 import {SETTINGS} from "../settings";
-
-const nodemailer = require("nodemailer");
+import nodemailer from "nodemailer";
 
 export const nodemailerService = {
 
@@ -22,7 +21,6 @@ export const nodemailerService = {
             });
 
             console.log(`Message sent: ${info.messageId}`);
-            return info
         } catch (error) {
             console.log('console', error);
 
