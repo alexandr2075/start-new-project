@@ -1,33 +1,22 @@
 import {paginationQueriesComments} from "../../helpers/pagination-queries-comments";
-import {QueryCommentsModel} from "../../models/commentModel";
+import {MyStatus, QueryCommentsModel} from "../../models/commentModel";
 import {QueryFilter} from "../../models/queryModel";
 import {ResponseModel} from "../../models/responseModel";
 import {paginationQueriesBlogs} from "../../helpers/pagination-queries-blogs";
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 import {PostModel} from "../../domains/post.entity";
 import {CommentModel} from "../../domains/comment.entity";
+import {PostViewModel} from "../../models/postsModels";
 
 export const postsQueryRepository = {
 
-    async getAllPosts(query: QueryFilter): Promise<ResponseModel> {
+    async getAllPosts(query: QueryFilter, userId: string) {
         const defaultValues = paginationQueriesBlogs(query)
 
-        const items = await PostModel.find({})
+        const posts = await PostModel.find({})
             .sort({[defaultValues.sortBy]: defaultValues.sortDirection})
             .skip((defaultValues.pageNumber - 1) * defaultValues.pageSize)
             .limit(defaultValues.pageSize)
-
-        // const itemsWithId = items.map((post) => {
-        //     const {_id, title, shortDescription, content, blogId, blogName, createdAt} = post
-        //     return {
-        //         id: _id.toString(),
-        //         title,
-        //         shortDescription,
-        //         content,
-        //         blogId, blogName,
-        //         createdAt
-        //     }
-        // })
 
         const totalCount = await PostModel.countDocuments()
 
@@ -36,14 +25,76 @@ export const postsQueryRepository = {
             page: defaultValues.pageNumber,
             pageSize: defaultValues.pageSize,
             totalCount,
-            items: items
+            items: posts.map(post => {
+                const isLiked = post.extendedLikesInfo.userIdWhoLiked.includes(userId);
+                const isDisliked = post.extendedLikesInfo.userIdWhoDisliked.includes(userId);
+
+                let myStatus: 'Like' | 'Dislike' | 'None' = 'None';
+                if (isLiked) myStatus = 'Like';
+                else if (isDisliked) myStatus = 'Dislike';
+                return {
+                    id: post._id,
+                    title: post.title,
+                    shortDescription: post.shortDescription,
+                    content: post.content,
+                    blogId: post.blogId,
+                    blogName: post.blogName,
+                    createdAt: post.createdAt,
+                    extendedLikesInfo: {
+                        likesCount: post.extendedLikesInfo.userIdWhoLiked.length,
+                        dislikesCount: post.extendedLikesInfo.userIdWhoDisliked.length,
+                        myStatus,
+                        newestLikes: post.extendedLikesInfo.newestLikes.slice(-3)
+                            .reverse()
+                            .map(p => {
+                                return {
+                                    addedAt: p.addedAt,
+                                    login: p.login,
+                                    userId: p.userId,
+                                }
+                            })
+                    }
+                }
+            })
         }
     },
 
-    async getPostById(id: string) {
-        return PostModel.findOne({_id: new ObjectId(id)});
-        // if (!post) return null
-        // return mapToOut(post)
+    async getPostById(postId: string, userId: string) {
+        const post = await PostModel.findById({_id: new ObjectId(postId)}).lean();
+        if (!post) {
+            return null
+        }
+        const isLiked = post.extendedLikesInfo.userIdWhoLiked.includes(userId);
+        const isDisliked = post.extendedLikesInfo.userIdWhoDisliked.includes(userId);
+
+        let myStatus: 'Like' | 'Dislike' | 'None' = 'None';
+        if (isLiked) myStatus = 'Like';
+        else if (isDisliked) myStatus = 'Dislike';
+        // console.log('createdPost:', createdPost);
+        // return createdPost;
+        return {
+            id: post._id,
+            title: post.title,
+            shortDescription: post.shortDescription,
+            content: post.content,
+            blogId: post.blogId,
+            blogName: post.blogName,
+            createdAt: post.createdAt,
+            extendedLikesInfo: {
+                likesCount: post.extendedLikesInfo.userIdWhoLiked.length,
+                dislikesCount: post.extendedLikesInfo.userIdWhoDisliked.length,
+                myStatus,
+                newestLikes: post.extendedLikesInfo.newestLikes.slice(-3)
+                    .reverse()
+                    .map(p => {
+                        return {
+                            addedAt: p.addedAt,
+                            login: p.login,
+                            userId: p.userId,
+                        }
+                    })
+            }
+        }
     },
 
     async getAllCommentsForSpecifiedPost(query: QueryCommentsModel, postId: string, userId: string): Promise<ResponseModel> {
@@ -92,7 +143,7 @@ export const postsQueryRepository = {
     },
 
     // get all POSTS for a specific blog
-    async getAllPostsById(blogId: string, query: QueryFilter): Promise<ResponseModel> {
+    async getAllPostsById(blogId: string, query: QueryFilter, userId: string) {
         const defaultValues = paginationQueriesBlogs(query)
 
         const items = await PostModel.find({blogId: blogId})
@@ -107,8 +158,37 @@ export const postsQueryRepository = {
             page: defaultValues.pageNumber,
             pageSize: defaultValues.pageSize,
             totalCount,
-            items: items
-            // items: mapArrToOut(items)
+            items: items.map(post => {
+                const isLiked = post.extendedLikesInfo.userIdWhoLiked.includes(userId);
+                const isDisliked = post.extendedLikesInfo.userIdWhoDisliked.includes(userId);
+
+                let myStatus: 'Like' | 'Dislike' | 'None' = 'None';
+                if (isLiked) myStatus = 'Like';
+                else if (isDisliked) myStatus = 'Dislike';
+                return {
+                    id: post._id,
+                    title: post.title,
+                    shortDescription: post.shortDescription,
+                    content: post.content,
+                    blogId: post.blogId,
+                    blogName: post.blogName,
+                    createdAt: post.createdAt,
+                    extendedLikesInfo: {
+                        likesCount: post.extendedLikesInfo.userIdWhoLiked.length,
+                        dislikesCount: post.extendedLikesInfo.userIdWhoDisliked.length,
+                        myStatus,
+                        newestLikes: post.extendedLikesInfo.newestLikes.slice(-3)
+                            .reverse()
+                            .map(p => {
+                                return {
+                                    addedAt: p.addedAt,
+                                    login: p.login,
+                                    userId: p.userId,
+                                }
+                            })
+                    }
+                }
+            })
         }
 
     },

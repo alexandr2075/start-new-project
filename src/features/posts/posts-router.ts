@@ -11,19 +11,20 @@ import {postsService} from "./posts-service";
 import {accessTokenGuard} from "../auth-login/guards/access.token.guard";
 import {postsQueryRepository} from "./posts-query-repository";
 import {getDataFromHeader} from "../../helpers/getDataFromHeader";
+import {checkLikeStatusFromBodyMiddleware} from "../comments/middlewaresComments";
 
 
 export const postsRouter = express.Router();
 
 //get all posts
-postsRouter.get("/", async (req: ReqWithQuery<QueryFilter>, res: Response) => {
-    const allPosts: ResponseModel = await postsQueryRepository.getAllPosts(req.query)
+postsRouter.get("/", getDataFromHeader, async (req: Request, res: Response) => {
+    const allPosts: ResponseModel = await postsQueryRepository.getAllPosts(req.query, req.user.id)
     res.status(HTTP_STATUS.OK).send(allPosts)
 })
 
 //get post by id
-postsRouter.get("/:id", async (req: ReqWithParams<{ id: string }>, res: Response) => {
-    const foundPost = await postsQueryRepository.getPostById(req.params.id)
+postsRouter.get("/:id", getDataFromHeader, async (req: ReqWithParams<{ id: string }>, res: Response) => {
+    const foundPost = await postsQueryRepository.getPostById(req.params.id, req.user.id)
     if (foundPost) {
         res.status(HTTP_STATUS.OK).send(foundPost)
     } else {
@@ -58,6 +59,26 @@ postsRouter.put("/:id",
 
         if (result.status === HTTP_STATUS.BAD_REQUEST) {
             res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
+        } else if (result.status === HTTP_STATUS.NO_CONTENT) {
+            res.sendStatus(HTTP_STATUS.NO_CONTENT)
+        } else if (result.status === HTTP_STATUS.NOT_FOUND) {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND)
+        } else {
+            res.sendStatus(500)
+        }
+    })
+
+// make like/unlike/dislike/undislike operation for post
+postsRouter.put("/:id/like-status",
+    accessTokenGuard,
+    checkLikeStatusFromBodyMiddleware,
+    sendAccumulatedErrorsMiddleware,
+    async (req: Request, res: Response) => {
+        const result = await postsService.updateLikeStatusForPost(req.params.id, req.body.likeStatus, req.user.id)
+
+        if (result.status === HTTP_STATUS.BAD_REQUEST) {
+            res.status(HTTP_STATUS.BAD_REQUEST)
+            // res.status(HTTP_STATUS.BAD_REQUEST).send({'errorsMessages': result.errors})
         } else if (result.status === HTTP_STATUS.NO_CONTENT) {
             res.sendStatus(HTTP_STATUS.NO_CONTENT)
         } else if (result.status === HTTP_STATUS.NOT_FOUND) {

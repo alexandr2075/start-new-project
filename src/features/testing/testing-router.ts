@@ -1,7 +1,6 @@
-import express from "express";
+import express, {Request, Response} from "express";
 import {deleteAllData} from "./testing-in-db-Repository";
 import {HTTP_STATUS} from "../../settings";
-import {Request, Response} from 'express';
 
 
 export const testingRouter = express.Router();

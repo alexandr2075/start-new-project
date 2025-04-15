@@ -5,8 +5,7 @@ import {ReqWithParams} from "../../types/requestPaginationFilter";
 import {accessTokenGuard} from "../auth-login/guards/access.token.guard";
 import {
     checkCommentIdFromParamMiddleware,
-    checkContentMiddleware,
-    checkLikeStatusFromParamMiddleware
+    checkContentMiddleware, checkLikeStatusFromBodyMiddleware,
 } from "./middlewaresComments";
 import {commentsService} from "./comments-service";
 import {getDataFromHeader} from "../../helpers/getDataFromHeader";
@@ -49,7 +48,7 @@ commentsRouter.put("/:id",
 commentsRouter.put("/:id/like-status",
     accessTokenGuard,
     checkCommentIdFromParamMiddleware,
-    checkLikeStatusFromParamMiddleware,
+    checkLikeStatusFromBodyMiddleware,
     sendAccumulatedErrorsMiddleware,
     async (req: Request, res: Response) => {
         const result = await commentsService.updateLikeStatusByCommentId(req.params.id, req.body.likeStatus, req.user.id)

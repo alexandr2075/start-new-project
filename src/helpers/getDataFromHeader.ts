@@ -12,6 +12,8 @@ export const getDataFromHeader = async (req: Request,
         if (payload) {
             req.user = {id: payload.userId}
             return next();
+        } else {
+            console.error('Not token')
         }
     }
 

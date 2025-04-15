@@ -11,6 +11,6 @@ export const checkCommentIdFromParamMiddleware = param('commentId').trim().isStr
     return checkObjectId(value)
 })
 
-export const checkLikeStatusFromParamMiddleware = body('likeStatus')
+export const checkLikeStatusFromBodyMiddleware = body('likeStatus')
     .isIn(Object.values(MyStatus))
     .withMessage('Invalid likeStatus')

@@ -1,7 +1,4 @@
-import {
-    FieldValidationError,
-    validationResult
-} from "express-validator";
+import {FieldValidationError, validationResult} from "express-validator";
 import {NextFunction, Request, Response} from 'express';
 
 export const sendAccumulatedErrorsMiddleware = (req: Request, res: Response, next: NextFunction) => {

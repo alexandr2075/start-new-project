@@ -10,6 +10,7 @@ import {ReqWithParams, ReqWithParamsAndQuery, ReqWithQuery} from "../../types/re
 import {postsService} from "../posts/posts-service";
 import {blogsQueryRepository} from "./blogs-query-repository";
 import {postsQueryRepository} from "../posts/posts-query-repository";
+import {getDataFromHeader} from "../../helpers/getDataFromHeader";
 
 export const blogsRouter = express.Router();
 
@@ -70,7 +71,7 @@ blogsRouter.delete("/:id", authMiddleware, async (req: Request, res: Response) =
 })
 
 // get all POSTS for a specific blog
-blogsRouter.get("/:blogId/posts", async (req: ReqWithParamsAndQuery<{
+blogsRouter.get("/:blogId/posts", getDataFromHeader, async (req: ReqWithParamsAndQuery<{
     blogId: string
 }, QueryFilter>, res: Response) => {
     const blogId = req.params.blogId
@@ -81,7 +82,7 @@ blogsRouter.get("/:blogId/posts", async (req: ReqWithParamsAndQuery<{
         return
     }
 
-    const result = await postsQueryRepository.getAllPostsById(blogId, queryFilter)
+    const result = await postsQueryRepository.getAllPostsById(blogId, queryFilter, req.user.id)
     if (result) {
         res.status(HTTP_STATUS.OK).send(result)
     } else {

@@ -21,13 +21,21 @@ export const postsService = {
             }
         }
 
-        const newPost = {
+        const newPost: PostViewModel = {
             title,
             shortDescription,
             content,
             blogId,
             blogName: blog.name,
-            createdAt: new Date(),
+            createdAt: new Date().toISOString(),
+            extendedLikesInfo: {
+                userIdWhoLiked: [],
+                userIdWhoDisliked: [],
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: MyStatus.None,
+                newestLikes: []
+            }
         }
         const createdPost = await postsRepository.createPost(newPost)
         if (!createdPost) {
@@ -38,12 +46,19 @@ export const postsService = {
         return {
             status: HTTP_STATUS.CREATED,
             data: {
+                id: createdPost._id,
                 title: createdPost.title,
                 shortDescription: createdPost.shortDescription,
                 content: createdPost.content,
                 blogId: createdPost.blogId,
+                blogName: createdPost.blogName,
                 createdAt: createdPost.createdAt,
-                id: createdPost._id,
+                extendedLikesInfo: {
+                    likesCount: createdPost.extendedLikesInfo.likesCount,
+                    dislikesCount: createdPost.extendedLikesInfo.dislikesCount,
+                    myStatus: createdPost.extendedLikesInfo.myStatus,
+                    newestLikes: createdPost.extendedLikesInfo.newestLikes
+                }
             }
             // data: mapToOut(createdPost)
         }
@@ -74,6 +89,49 @@ export const postsService = {
 
     async deletePostById(id: string) {
         return await postsRepository.deletePostById(id)
+    },
+
+    async updateLikeStatusForPost(postId: string, likeStatus: string, userId: string) {
+        const post = await postsRepository.getPostById(postId)
+        if (!post) {
+            return {
+                status: HTTP_STATUS.NOT_FOUND
+            }
+        }
+
+        const user = await usersRepository.getUserById(userId)
+        if (!user) {
+            return {
+                status: HTTP_STATUS.NOT_FOUND
+            }
+        }
+        if (!post.extendedLikesInfo.userIdWhoLiked.includes(userId)
+            && likeStatus === 'Like') {
+            return {
+                status: HTTP_STATUS.NO_CONTENT,
+                data: (await postsRepository.updateLike(postId, likeStatus, userId, user.login))
+            }
+        }
+
+        if (!post.extendedLikesInfo.userIdWhoDisliked.includes(userId)
+            && likeStatus === MyStatus.Dislike) {
+            return {
+                status: HTTP_STATUS.NO_CONTENT,
+                data: (await postsRepository.updateDislike(postId, likeStatus, userId, user.login))
+            }
+        }
+
+        if (likeStatus === 'None') {
+            return {
+                status: HTTP_STATUS.NO_CONTENT,
+                data: (await postsRepository.updateNone(postId, likeStatus, userId, user.login))
+            }
+        }
+
+        return {
+            status: HTTP_STATUS.NO_CONTENT,
+            data: post
+        }
     },
 
     //create new comment by postId

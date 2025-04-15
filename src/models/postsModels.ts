@@ -1,4 +1,6 @@
 import {SortDirection} from "mongodb";
+import {LikesInfo, MyStatus} from "./commentModel";
+import {Schema} from "mongoose";
 
 export type QueryPostModel = {
     sortBy: string,
@@ -7,13 +9,37 @@ export type QueryPostModel = {
     pageSize: number;
 }
 
+export type LikeDetailsViewModel = {
+    addedAt: Date,
+    userId: string,
+    login: string,
+}
+
+export type ExtendedLikesInfoViewModel = {
+    likesCount: number,
+    dislikesCount: number,
+    myStatus: MyStatus.None | MyStatus.Like | MyStatus.Dislike,
+    newestLikes: LikeDetailsViewModel[]
+}
+
+export type LikesInfoViewModel = {
+    userIdWhoLiked: [],
+    userIdWhoDisliked: [],
+    likesCount: Number,
+    dislikesCount: Number,
+    myStatus: String,
+    newestLikes: []
+}
+
 export type PostViewModel = {
+    _id?: string,
     title: string;
     shortDescription: string;
     content: string;
     blogId: string;
     blogName: string;
-    createdAt: Date;
+    createdAt: string;
+    extendedLikesInfo: LikesInfoViewModel
 }
 
 export type PostViewModelWithId = {
